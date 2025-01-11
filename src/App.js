@@ -16,7 +16,7 @@ function App() {
           <Route path="/" element={<StorePage />} />
 
           {/* Payment route */}
-          <Route path="/payment-app" element={<Payment />} />
+          <Route path="/payment" element={<Payment />} />
 
           {/* Fallback route for invalid paths */}
           <Route
