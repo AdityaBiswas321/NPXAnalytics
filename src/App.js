@@ -10,25 +10,13 @@ const stripePromise = loadStripe("pk_test_51JYnmdLGF4kichPFTGiaPYHrXX6PYQZ3TkGeU
 function App() {
   return (
     <Elements stripe={stripePromise}>
-      <Router basename="/payment-app">
-        <Routes>
-          {/* Store Page */}
-          <Route path="/" element={<StorePage />} />
-
-          {/* Payment Page */}
-          <Route path="/payment" element={<Payment />} />
-
-          {/* 404 Fallback */}
-          <Route
-            path="*"
-            element={
-              <div style={{ textAlign: "center", marginTop: "50px" }}>
-                <h1>404 - Page Not Found</h1>
-              </div>
-            }
-          />
-        </Routes>
-      </Router>
+    <Router basename="/payment-app">
+      <Routes>
+        <Route path="/" element={<StorePage />} />
+        <Route path="/payment" element={<Payment />} />
+        <Route path="*" element={<h1>404</h1>} />
+      </Routes>
+    </Router>
     </Elements>
   );
 }
