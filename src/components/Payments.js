@@ -27,7 +27,7 @@ const LLMConnector = ({ onCategorySelect }) => {
 useEffect(() => {
   const fetchServerCapacity = async () => {
     try {
-      const res = await fetch("http://localhost:3000/server/server-capacity");
+      const res = await fetch("https://mysterious-river-47357-494b914b38d7.herokuapp.com/server/server-capacity");
       const data = await res.json();
       setServerCapacity(data.isFull ? "Full" : "Available");
 
@@ -54,7 +54,7 @@ useEffect(() => {
     setPaymentInitiated(true); // Set payment as initiated
     try {
       const res = await fetch(
-        "http://localhost:3000/payments/create-payment-intent",
+        "https://mysterious-river-47357-494b914b38d7.herokuapp.com/payments/create-payment-intent",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -86,7 +86,7 @@ useEffect(() => {
   
     try {
       // Final server capacity check
-      const capacityRes = await fetch("http://localhost:3000/server/server-capacity");
+      const capacityRes = await fetch("https://mysterious-river-47357-494b914b38d7.herokuapp.com/server/server-capacity");
       const capacityData = await capacityRes.json();
   
       if (capacityData.isFull) {
@@ -108,7 +108,7 @@ useEffect(() => {
   
       if (result.paymentIntent.status === "succeeded") {
         const res = await fetch(
-          "http://localhost:3000/payments/generate-key-after-payment",
+          "https://mysterious-river-47357-494b914b38d7.herokuapp.com/payments/generate-key-after-payment",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
