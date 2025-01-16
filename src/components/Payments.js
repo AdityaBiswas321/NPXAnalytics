@@ -142,7 +142,7 @@ useEffect(() => {
             <div className="payment-header">
               <h2>Get Your API Key</h2>
               <p className="payment-description">
-                Pay $1 to generate a time-limited API key (valid for 1 hour).
+                Pay $1.50 to generate a time-limited API key (valid for 1 hour).
               </p>
               
             </div>
@@ -154,7 +154,7 @@ useEffect(() => {
               >
                 {loadingPayment
                   ? "Processing Payment..."
-                  : "Pay $1 for API Key (1 hour)"}
+                  : "Pay $1.50 for API Key (1 hour)"}
               </button>
             )}
             {clientSecret && (
