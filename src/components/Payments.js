@@ -7,6 +7,7 @@ import {
   CardCvcElement,
 } from "@stripe/react-stripe-js";
 import "../CSS/payment.css";
+import "@fortawesome/fontawesome-free/css/all.css"; // Import Font Awesome CSS
 
 const LLMConnector = ({ onCategorySelect }) => {
   const [inputText, setInputText] = useState("");
@@ -14,7 +15,7 @@ const LLMConnector = ({ onCategorySelect }) => {
   const [loadingMessage, setLoadingMessage] = useState(false);
   const [serverMessage, setServerMessage] = useState("");
   const [loadingKey, setLoadingKey] = useState(false);
-  const [apiKey, setApiKey] = useState("");
+  const [apiKey, setApiKey] = useState("TEST_API_KEY_FOR_LOCAL");
   const [serverCapacity, setServerCapacity] = useState("Checking...");
   const [paymentInitiated, setPaymentInitiated] = useState(false); // New state
 
@@ -58,7 +59,7 @@ useEffect(() => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ amount: 1.0 }), // Payment amount in USD
+          body: JSON.stringify({ amount: 1.50 }), // Payment amount in USD
         }
       );
 
@@ -240,17 +241,26 @@ useEffect(() => {
         )}
 
         {apiKey && (
-          <div className="api-key-container">
-            <p className="api-key-header">Your API Key</p>
-            <div className="api-key-display">
-              <span className="api-key-value">{apiKey}</span>
-            </div>
-            <p className="api-key-instructions">
-              Please <strong>copy and save</strong> your API key. It will not be
-              displayed again.
-            </p>
-          </div>
-        )}
+  <div className="api-key-container">
+    <p className="api-key-header">Your API Key</p>
+    <div
+      className="api-key-display"
+      onClick={() => {
+        navigator.clipboard.writeText(apiKey);
+        alert("API Key copied to clipboard!");
+      }}
+      style={{ cursor: "pointer" }}
+      title="Click to copy"
+    >
+      <span className="api-key-value">{apiKey}</span>
+      <i className="fas fa-copy copy-icon" title="Copy API Key"></i> {/* Font Awesome Icon */}      
+    </div>
+    <p className="api-key-instructions">
+      Please <strong>copy and save</strong> your API key. It will not be
+      displayed again.
+    </p>
+  </div>
+)}
         {serverMessage && <p className="server-message">{serverMessage}</p>}
 
         {/* Server Capacity Section */}
