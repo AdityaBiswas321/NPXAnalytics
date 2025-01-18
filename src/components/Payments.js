@@ -142,7 +142,7 @@ useEffect(() => {
             <div className="payment-header">
               <h2>Get Your API Key</h2>
               <p className="payment-description">
-                Pay $1.50 to generate a time-limited API key (valid for 1 hour).
+                Pay $1.50 (in USD) to generate a time-limited API key (valid for 1 hour).
               </p>
               
             </div>
