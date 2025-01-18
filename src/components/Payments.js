@@ -14,7 +14,7 @@ const LLMConnector = ({ onCategorySelect }) => {
   const [loadingMessage, setLoadingMessage] = useState(false);
   const [serverMessage, setServerMessage] = useState("");
   const [loadingKey, setLoadingKey] = useState(false);
-  const [apiKey, setApiKey] = useState("Test");
+  const [apiKey, setApiKey] = useState("");
   const [serverCapacity, setServerCapacity] = useState("Checking...");
   const [paymentInitiated, setPaymentInitiated] = useState(false); // New state
 
