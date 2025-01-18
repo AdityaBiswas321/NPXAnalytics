@@ -11,10 +11,18 @@ const StorePage = () => {
       <header className="hero-section">
         <h1 className="store-title">NPXComputer Analytics</h1>
         <p className="store-tagline">
-          Unlock powerful insights with our cutting-edge analytics API. Make data-driven decisions with ease.
+          Unlock powerful insights with our cutting-edge materials analytics API. Make data-driven decisions with ease.
         </p>
         <button className="cta-button">Explore Features</button>
       </header>
+      <footer className="store-footer">
+        <p>
+          <a href="/terms-of-service">Terms of Service</a> |{" "}
+          <a href="/privacy-policy">Privacy Policy</a> |{" "}
+          <a href="/contact-support">Contact Support</a>
+        </p>
+        <p>&copy; {new Date().getFullYear()} NPXComputer Analytics. All rights reserved.</p>
+      </footer>
 
       {/* Product Section */}
       <section className="product-section">
@@ -30,7 +38,7 @@ const StorePage = () => {
             <li>📈 Beautiful, shareable visualizations</li>
             <li>🛡️ Top-tier security and scalability</li>
           </ul>
-          <p className="product-price">Price: $1 (Valid for 1 hour)</p>
+          <p className="product-price">Price: $1.50 (Valid for 1 hour)</p>
           <PaymentPage />
         </div>
       </section>
@@ -42,7 +50,7 @@ const StorePage = () => {
           <div className="feature-item">
             <h3>Real-Time Insights</h3>
             <p>
-              Get live data updates for tracking key metrics. Stay ahead of trends with instantaneous insights.
+              Get live data updates for tracking key metrics in inorganic materials database (Quantum Espresso). Stay ahead of trends with instantaneous insights.
             </p>
           </div>
           <div className="feature-item">
@@ -161,14 +169,7 @@ const StorePage = () => {
       </section>
 
       {/* Footer Section */}
-      <footer className="store-footer">
-        <p>
-          <a href="/terms-of-service">Terms of Service</a> |{" "}
-          <a href="/privacy-policy">Privacy Policy</a> |{" "}
-          <a href="/support">Contact Support</a>
-        </p>
-        <p>&copy; {new Date().getFullYear()} NPXComputer Analytics. All rights reserved.</p>
-      </footer>
+      
     </div>
   );
 };
