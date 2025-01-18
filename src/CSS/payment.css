@@ -267,29 +267,3 @@ body {
     padding: 15px;
   }
 }
-
-
-
-.api-key-display:hover {
-  background-color: #4caf50;
-}
-
-.copy-icon {
-  color: white; /* Makes the icon white */
-  font-size: 1.2em; /* Adjust size for better visibility */
-  transition: transform 0.2s ease, color 0.2s ease; /* Add hover effects */
-}
-
-.copy-icon:hover {
-  color: #f0f0f0; /* Slightly lighter on hover */
-  transform: scale(1.1); /* Subtle zoom on hover */
-}
-
-.api-key-display {
-  background-color: #333; /* Optional: Dark background for contrast */
-  padding: 10px; /* Add padding around the key display */
-  border-radius: 5px; /* Rounded corners */
-  display: flex;
-  align-items: center;
-  gap: 10px; /* Space between key and icon */
-}
