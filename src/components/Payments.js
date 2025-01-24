@@ -58,7 +58,7 @@ useEffect(() => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ amount: 1.50 }), // Payment amount in USD
+          body: JSON.stringify({ amount: 0.50 }), // Payment amount in USD
         }
       );
 
@@ -142,7 +142,7 @@ useEffect(() => {
             <div className="payment-header">
               <h2>Get Your API Key</h2>
               <p className="payment-description">
-                Pay $1.50 (in USD) to generate a time-limited API key (valid for 1 hour).
+                Pay $0.50 (in USD) to generate a time-limited API key (valid for 1 hour).
               </p>
               
             </div>
@@ -154,7 +154,7 @@ useEffect(() => {
               >
                 {loadingPayment
                   ? "Processing Payment..."
-                  : "Pay $1.50 for API Key (1 hour)"}
+                  : "Pay $0.50 for API Key (1 hour)"}
               </button>
             )}
             {clientSecret && (

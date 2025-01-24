@@ -1,9 +1,34 @@
 import React, { useState } from "react";
 import PaymentPage from "../components/Payments";
-import "../CSS/StorePage.css"
+import "../CSS/StorePage.css";
 
 const StorePage = () => {
   const [showFAQ, setShowFAQ] = useState(false);
+
+  // State for handling API key and fetched data
+  const [apiKey, setApiKey] = useState("");
+  const [materialsData, setMaterialsData] = useState([]);
+  const [error, setError] = useState(null);
+
+  const fetchMaterialsData = async () => {
+    try {
+      const response = await fetch("https://materialsproject.org/rest/v2/materials/Fe2O3/vasp", {
+        headers: {
+          "X-API-KEY": "IpzcdrTMrBAmEIS67VDFbuRraEF7jCwD"
+        }
+      });
+      if (!response.ok) {
+        throw new Error("Error fetching data");
+      }
+      const data = await response.json();
+      setMaterialsData(data);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+      setMaterialsData([]);
+    }
+  };
+  
 
   return (
     <div className="store-container">
@@ -15,6 +40,7 @@ const StorePage = () => {
         </p>
         <button className="cta-button">Explore Features</button>
       </header>
+
       <footer className="store-footer">
         <p>
           <a href="/terms-of-service">Terms of Service</a> |{" "}
@@ -23,6 +49,39 @@ const StorePage = () => {
         </p>
         <p>&copy; {new Date().getFullYear()} NPXComputer Analytics. All rights reserved.</p>
       </footer>
+
+            {/* Free Materials Data Fetch Section */}
+            <section className="materials-data-section">
+        <h2>Materials Database</h2>
+        <p>
+          Enter any API Key: 
+        </p>
+        <input
+          type="text"
+          placeholder="Enter API Key..."
+          value={apiKey}
+          onChange={(e) => setApiKey(e.target.value)}
+          style={{ width: "300px", marginRight: "10px" }}
+        />
+        <button onClick={fetchMaterialsData}>Fetch Data</button>
+
+        {error && <p style={{ color: "red" }}>Error: {error}</p>}
+
+        {materialsData.length > 0 && (
+          <div style={{ marginTop: "20px" }}>
+            <h3>Fetched Data:</h3>
+            <ul>
+              {materialsData.map((item) => (
+                <li key={item.id}>
+                  <strong>Title:</strong> {item.title}
+                  <br />
+                  <strong>Body:</strong> {item.body}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </section>
 
       {/* Product Section */}
       <section className="product-section">
@@ -38,7 +97,7 @@ const StorePage = () => {
             <li>📈 Beautiful, shareable visualizations</li>
             <li>🛡️ Top-tier security and scalability</li>
           </ul>
-          <p className="product-price">Price: $1.50 (Valid for 1 hour)</p>
+          <p className="product-price">Price: $0.50 (Valid for 1 hour)</p>
           <PaymentPage />
         </div>
       </section>
@@ -50,7 +109,8 @@ const StorePage = () => {
           <div className="feature-item">
             <h3>Real-Time Insights</h3>
             <p>
-              Get live data updates for tracking key metrics in inorganic materials database (Quantum Espresso). Stay ahead of trends with instantaneous insights.
+              Get live data updates for tracking key metrics in any free materials database.
+              Stay ahead of trends with instantaneous insights.
             </p>
           </div>
           <div className="feature-item">
@@ -122,7 +182,7 @@ const StorePage = () => {
             <li>
               <strong>What does the API provide?</strong>
               <p>
-              NPXComputer offers real-time analytics, predictive models, and visualization tools
+                NPXComputer offers real-time analytics, predictive models, and visualization tools
                 accessible via a powerful API.
               </p>
             </li>
@@ -168,8 +228,7 @@ const StorePage = () => {
         </div>
       </section>
 
-      {/* Footer Section */}
-      
+
     </div>
   );
 };
