@@ -24,29 +24,35 @@ const LLMConnector = ({ onCategorySelect }) => {
   const [clientSecret, setClientSecret] = useState("");
   const [loadingPayment, setLoadingPayment] = useState(false);
 
-useEffect(() => {
-  const fetchServerCapacity = async () => {
-    try {
-      const res = await fetch("https://mysterious-river-47357-494b914b38d7.herokuapp.com/server/server-capacity");
-      const data = await res.json();
-      setServerCapacity(data.isFull ? "Full" : "Available");
+  useEffect(() => {
+    const fetchServerCapacity = async () => {
+      try {
+        const res = await fetch(
+          "https://mysterious-river-47357-494b914b38d7.herokuapp.com/server/server-capacity"
+        );
+        const data = await res.json();
+        setServerCapacity(data.isFull ? "Full" : "Available");
 
-      if (data.isFull && data.estimatedFreeUpTime) {
-        const freeUpTime = new Date(data.estimatedFreeUpTime).toLocaleString();
-        setServerMessage(`Server is full. Estimated free-up time: ${freeUpTime} (PST)`);
-      } else {
-        setServerMessage(""); // Clear message if server is available
+        if (data.isFull && data.estimatedFreeUpTime) {
+          const freeUpTime = new Date(
+            data.estimatedFreeUpTime
+          ).toLocaleString();
+          setServerMessage(
+            `Server is full. Estimated free-up time: ${freeUpTime} (PST)`
+          );
+        } else {
+          setServerMessage(""); // Clear message if server is available
+        }
+      } catch (error) {
+        console.error("Error fetching server capacity:", error);
+        setServerCapacity("Error");
       }
-    } catch (error) {
-      console.error("Error fetching server capacity:", error);
-      setServerCapacity("Error");
-    }
-  };
+    };
 
-  fetchServerCapacity();
-  const interval = setInterval(fetchServerCapacity, 60000);
-  return () => clearInterval(interval);
-}, []);
+    fetchServerCapacity();
+    const interval = setInterval(fetchServerCapacity, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   const initiatePayment = async () => {
     setLoadingPayment(true);
@@ -58,7 +64,7 @@ useEffect(() => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ amount: 0.50 }), // Payment amount in USD
+          body: JSON.stringify({ amount: 0.5 }), // Payment amount in USD
         }
       );
 
@@ -83,29 +89,33 @@ useEffect(() => {
     if (!stripe || !elements) return;
     setLoadingPayment(true);
     setServerMessage("");
-  
+
     try {
       // Final server capacity check
-      const capacityRes = await fetch("https://mysterious-river-47357-494b914b38d7.herokuapp.com/server/server-capacity");
+      const capacityRes = await fetch(
+        "https://mysterious-river-47357-494b914b38d7.herokuapp.com/server/server-capacity"
+      );
       const capacityData = await capacityRes.json();
-  
+
       if (capacityData.isFull) {
-        setServerMessage("Server is full, payment cancelled. Please wait until capacity is available again.");
+        setServerMessage(
+          "Server is full, payment cancelled. Please wait until capacity is available again."
+        );
         setLoadingPayment(false);
         return; // Prevent payment from proceeding
       }
-  
+
       const cardNumber = elements.getElement(CardNumberElement);
       const result = await stripe.confirmCardPayment(clientSecret, {
         payment_method: { card: cardNumber },
       });
-  
+
       if (result.error) {
         console.error("Payment error:", result.error.message);
         setServerMessage("Payment failed. Please try again.");
         return;
       }
-  
+
       if (result.paymentIntent.status === "succeeded") {
         const res = await fetch(
           "https://mysterious-river-47357-494b914b38d7.herokuapp.com/payments/generate-key-after-payment",
@@ -115,7 +125,7 @@ useEffect(() => {
             body: JSON.stringify({ paymentIntentId: result.paymentIntent.id }),
           }
         );
-  
+
         if (res.ok) {
           const data = await res.json();
           setApiKey(data.apiKey);
@@ -131,7 +141,6 @@ useEffect(() => {
       setLoadingPayment(false);
     }
   };
-  
 
   return (
     <div className="llm-connector">
@@ -142,9 +151,9 @@ useEffect(() => {
             <div className="payment-header">
               <h2>Get Your API Key</h2>
               <p className="payment-description">
-                Pay $0.50 (in USD) to generate a time-limited API key (valid for 1 hour).
+                Pay <del>$1.50</del> <span>$0.50</span> (in USD) to generate a
+                time-limited API key (valid for 1 hour).
               </p>
-              
             </div>
             {!clientSecret && (
               <button
@@ -160,7 +169,9 @@ useEffect(() => {
             {clientSecret && (
               <div className="card-element-container">
                 {/* Server Message Display */}
-            {serverMessage && <p className="server-message">{serverMessage}</p>}
+                {serverMessage && (
+                  <p className="server-message">{serverMessage}</p>
+                )}
                 <div className="card-number-wrapper">
                   <label>Card Number</label>
                   <div className="card-element">
