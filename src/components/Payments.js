@@ -64,7 +64,7 @@ const LLMConnector = ({ onCategorySelect }) => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ amount: 0.5 }), // Payment amount in USD
+          body: JSON.stringify({ amount: 1.5 }), // Payment amount in USD
         }
       );
 
@@ -142,6 +142,8 @@ const LLMConnector = ({ onCategorySelect }) => {
     }
   };
 
+  // <del>$1.50</del>
+
   return (
     <div className="llm-connector">
       {/* Payment and API Key Section */}
@@ -151,7 +153,7 @@ const LLMConnector = ({ onCategorySelect }) => {
             <div className="payment-header">
               <h2>Get Your API Key</h2>
               <p className="payment-description">
-                Pay <del>$1.50</del> <span>$0.50</span> (in USD) to generate a
+                Pay <span>$1.50</span> (in USD) to generate a
                 time-limited API key (valid for 1 hour).
               </p>
             </div>
@@ -163,7 +165,7 @@ const LLMConnector = ({ onCategorySelect }) => {
               >
                 {loadingPayment
                   ? "Processing Payment..."
-                  : "Pay $0.50 for API Key (1 hour)"}
+                  : "Pay $1.50 for API Key (1 hour)"}
               </button>
             )}
             {clientSecret && (
