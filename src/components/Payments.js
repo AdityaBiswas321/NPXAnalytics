@@ -64,7 +64,7 @@ const LLMConnector = ({ onCategorySelect }) => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ amount: 1.50 }), // Payment amount in USD
+          body: JSON.stringify({ amount: 1.00 }), // Payment amount in USD
         }
       );
 
