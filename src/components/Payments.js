@@ -153,7 +153,7 @@ const LLMConnector = ({ onCategorySelect }) => {
             <div className="payment-header">
               <h2>Get Your API Key</h2>
               <p className="payment-description">
-                Pay <span>$1.50</span> (in USD) to generate a
+                Pay <del>$1.50</del> <span>$1.00</span> (in USD) to generate a
                 time-limited API key (valid for 1 hour).
               </p>
             </div>
@@ -165,7 +165,7 @@ const LLMConnector = ({ onCategorySelect }) => {
               >
                 {loadingPayment
                   ? "Processing Payment..."
-                  : "Pay $1.50 for API Key (1 hour)"}
+                  : "Pay $1.00 for API Key (1 hour)"}
               </button>
             )}
             {clientSecret && (
