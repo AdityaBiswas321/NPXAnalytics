@@ -1,4 +1,5 @@
 // File: /src/components/LLMConnector.js
+
 import React, { useState, useEffect } from "react";
 import {
   useStripe,
@@ -32,7 +33,7 @@ const LLMConnector = () => {
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
 
-  // If you had ephemeral keys in older code, can remove:
+  // If you had ephemeral keys in older code, can remove if not needed:
   const [apiKey, setApiKey] = useState("");
 
   const backendURL = process.env.REACT_APP_BACKEND_URL || "http://localhost:3000";
@@ -46,21 +47,31 @@ const LLMConnector = () => {
     }
   }, []);
 
-  // 1. Periodically fetch server capacity
+  /**
+   * 1. Periodically fetch server capacity
+   *    Our new backend returns:
+   *       { status: "available" | "moderate" | "full", freeKeys, totalKeys, ... }
+   */
   useEffect(() => {
     const fetchServerCapacity = async () => {
       try {
         const res = await fetch(`${backendURL}/server/server-capacity`);
+        if (!res.ok) {
+          setServerCapacity("Error");
+          return;
+        }
         const data = await res.json();
-        setServerCapacity(data.isFull ? "Full" : "Available");
-
-        if (data.isFull && data.estimatedFreeUpTime) {
-          const freeUpTime = new Date(data.estimatedFreeUpTime).toLocaleString();
-          setServerMessage(
-            `Server is full. Estimated free-up time: ${freeUpTime} (PST)`
-          );
+        if (data.status === "available") {
+          setServerCapacity("Available");
+          setServerMessage("");
+        } else if (data.status === "moderate") {
+          setServerCapacity("Moderate");
+          setServerMessage("");
+        } else if (data.status === "full") {
+          setServerCapacity("Full");
+          setServerMessage("Server is at capacity. Please wait until a key becomes free.");
         } else {
-          setServerMessage(""); // Clear message if server is available
+          setServerCapacity("Unknown");
         }
       } catch (error) {
         console.error("Error fetching server capacity:", error);
@@ -133,6 +144,13 @@ const LLMConnector = () => {
     setServerMessage("");
     setPaymentInitiated(true);
     try {
+      // Check server capacity right before starting
+      if (serverCapacity === "Full") {
+        setServerMessage("Server is at capacity; payment blocked. Please wait.");
+        setLoadingPayment(false);
+        return;
+      }
+
       const res = await fetch(`${backendURL}/payments/create-payment-intent`, {
         method: "POST",
         headers: {
@@ -142,13 +160,15 @@ const LLMConnector = () => {
         body: JSON.stringify({ amount: 1.0 }), // $1
       });
 
-      if (res.status === 429) {
-        setServerMessage("Server is full. Please wait until capacity is available.");
+      if (!res.ok) {
+        const data = await res.json();
+        setServerMessage(data.error || "Error creating payment intent.");
         return;
       }
+
       const data = await res.json();
-      if (!res.ok || !data.clientSecret) {
-        setServerMessage(data.error || "Error creating payment intent.");
+      if (!data.clientSecret) {
+        setServerMessage("Missing clientSecret in response.");
         return;
       }
       setClientSecret(data.clientSecret);
@@ -167,11 +187,8 @@ const LLMConnector = () => {
     setServerMessage("");
 
     try {
-      // Check capacity again
-      const capacityRes = await fetch(`${backendURL}/server/server-capacity`);
-      const capacityData = await capacityRes.json();
-
-      if (capacityData.isFull) {
+      // Check capacity again right before confirm
+      if (serverCapacity === "Full") {
         setServerMessage("Server is full, payment cancelled. Please wait until capacity is available again.");
         setLoadingPayment(false);
         return;
@@ -252,14 +269,13 @@ const LLMConnector = () => {
             />
             <button type="submit">Log In</button>
           </form>
-          <p style={{ marginTop: "1rem" }}>
-          </p>
         </div>
       )}
 
       {/* If user is logged in, show payment UI */}
       {token && (
         <div className="settings-container">
+          {/* Payment step 1: create PaymentIntent */}
           {!clientSecret && (
             <>
               <div className="payment-header">
@@ -278,6 +294,7 @@ const LLMConnector = () => {
             </>
           )}
 
+          {/* Payment step 2: confirm card payment */}
           {clientSecret && (
             <div className="card-element-container">
               {serverMessage && <p className="server-message">{serverMessage}</p>}
@@ -354,7 +371,7 @@ const LLMConnector = () => {
             </div>
           )}
 
-          {/* Ephemeral key from old logic - you can remove if not needed */}
+          {/* Ephemeral key from older logic: can remove if not used */}
           {apiKey && apiKey !== "N/A (using token system now)" && (
             <div className="api-key-container">
               <p className="api-key-header">Your API Key</p>
@@ -379,6 +396,8 @@ const LLMConnector = () => {
               ? "capacity-full"
               : serverCapacity === "Available"
               ? "capacity-available"
+              : serverCapacity === "Moderate"
+              ? "capacity-moderate"
               : "capacity-error"
           }`}
         >
