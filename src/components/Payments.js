@@ -36,7 +36,7 @@ const LLMConnector = () => {
   // If you had ephemeral keys in older code, can remove if not needed:
   const [apiKey, setApiKey] = useState("");
 
-  const backendURL ="https://mysterious-river-47357-494b914b38d7.herokuapp.com";
+  const backendURL = "https://mysterious-river-47357-494b914b38d7.herokuapp.com";
 
   // On mount, check localStorage for an existing token
   useEffect(() => {
