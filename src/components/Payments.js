@@ -32,26 +32,24 @@ const LLMConnector = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false);
 
   // If you had ephemeral keys in older code, can remove if not needed:
   const [apiKey, setApiKey] = useState("");
 
   const backendURL = "https://mysterious-river-47357-494b914b38d7.herokuapp.com";
 
-  // On mount, check localStorage for an existing token
+  // On mount, check localStorage for an existing token and fetch current user
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     if (storedToken) {
+      console.log("Token found in localStorage:", storedToken);
       setToken(storedToken);
       fetchCurrentUser(storedToken);
     }
   }, []);
 
-  /**
-   * 1. Periodically fetch server capacity
-   *    Our new backend returns:
-   *       { status: "available" | "moderate" | "full", freeKeys, totalKeys, ... }
-   */
+  // Periodically fetch server capacity
   useEffect(() => {
     const fetchServerCapacity = async () => {
       try {
@@ -61,6 +59,7 @@ const LLMConnector = () => {
           return;
         }
         const data = await res.json();
+        console.log("Server capacity data:", data);
         if (data.status === "available") {
           setServerCapacity("Available");
           setServerMessage("");
@@ -84,12 +83,13 @@ const LLMConnector = () => {
     return () => clearInterval(interval);
   }, [backendURL]);
 
-  // 2. Handle user login
+  // Handle user login
   const handleLogin = async (e) => {
     e.preventDefault();
     setAuthError("");
     setServerMessage("");
-
+    setLoginLoading(true);
+    console.log("Login initiated with email:", email);
     try {
       const res = await fetch(`${backendURL}/auth/login`, {
         method: "POST",
@@ -99,22 +99,27 @@ const LLMConnector = () => {
       const data = await res.json();
       if (!res.ok) {
         setAuthError(data.error || "Login failed.");
+        console.error("Login error response:", data);
+        setLoginLoading(false);
         return;
       }
-      // Save token
+      // Save token and update user state
       localStorage.setItem("token", data.token);
       setToken(data.token);
       setUser(data.user);
       setAuthError("");
       setEmail("");
       setPassword("");
+      console.log("Login successful:", data);
     } catch (err) {
-      console.error("Login error:", err);
+      console.error("Login exception:", err);
       setAuthError("Something went wrong. Check console.");
+    } finally {
+      setLoginLoading(false);
     }
   };
 
-  // Retrieve current user from token
+  // Retrieve current user using token
   const fetchCurrentUser = async (authToken) => {
     try {
       const res = await fetch(`${backendURL}/auth/me`, {
@@ -122,19 +127,19 @@ const LLMConnector = () => {
       });
       if (res.ok) {
         const userData = await res.json();
+        console.log("Fetched current user:", userData);
         setUser(userData);
       } else {
-        // invalid token
         localStorage.removeItem("token");
         setToken(null);
         setUser(null);
       }
     } catch (err) {
-      console.error("Error fetching user in payment app:", err);
+      console.error("Error fetching user:", err);
     }
   };
 
-  // 3. Create Payment Intent ($5 = 1000 tokens)
+  // Create Payment Intent ($5.00 = 1000 tokens)
   const initiatePayment = async () => {
     if (!token) {
       setServerMessage("Please log in first.");
@@ -144,33 +149,30 @@ const LLMConnector = () => {
     setServerMessage("");
     setPaymentInitiated(true);
     try {
-      // Check server capacity right before starting
       if (serverCapacity === "Full") {
         setServerMessage("Server is at capacity; payment blocked. Please wait.");
         setLoadingPayment(false);
         return;
       }
-
       const res = await fetch(`${backendURL}/payments/create-payment-intent`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ amount: 5.0 }), // $5
+        body: JSON.stringify({ amount: 5.0 }),
       });
-
       if (!res.ok) {
         const data = await res.json();
         setServerMessage(data.error || "Error creating payment intent.");
         return;
       }
-
       const data = await res.json();
       if (!data.clientSecret) {
         setServerMessage("Missing clientSecret in response.");
         return;
       }
+      console.log("Payment intent created:", data);
       setClientSecret(data.clientSecret);
     } catch (error) {
       console.error("Error initiating payment:", error);
@@ -180,34 +182,27 @@ const LLMConnector = () => {
     }
   };
 
-  // 4. Confirm Payment with Stripe, then finalize token purchase
+  // Confirm Payment with Stripe and finalize token purchase
   const handlePayment = async () => {
     if (!stripe || !elements) return;
     setLoadingPayment(true);
     setServerMessage("");
-
     try {
-      // Check capacity again right before confirm
       if (serverCapacity === "Full") {
         setServerMessage("Server is full, payment cancelled. Please wait until capacity is available again.");
         setLoadingPayment(false);
         return;
       }
-
-      // Confirm card payment
       const cardNumber = elements.getElement(CardNumberElement);
       const result = await stripe.confirmCardPayment(clientSecret, {
         payment_method: { card: cardNumber },
       });
-
       if (result.error) {
         console.error("Payment error:", result.error.message);
         setServerMessage("Payment failed. Please try again.");
         return;
       }
-
       if (result.paymentIntent.status === "succeeded") {
-        // Update tokens on server
         const res = await fetch(`${backendURL}/payments/generate-key-after-payment`, {
           method: "POST",
           headers: {
@@ -216,20 +211,13 @@ const LLMConnector = () => {
           },
           body: JSON.stringify({
             paymentIntentId: result.paymentIntent.id,
-            tokens: 1000, // number of tokens purchased
+            tokens: 1000,
           }),
         });
-
         if (res.ok) {
           const data = await res.json();
-          // Show success
           setServerMessage(`Success! You now have ${data.newBalance} total tokens.`);
-          // Update local user object
-          setUser((prev) => {
-            if (!prev) return prev;
-            return { ...prev, tokenBalance: data.newBalance };
-          });
-          // If ephemeral key is not used, set to "N/A"
+          setUser((prev) => (prev ? { ...prev, tokenBalance: data.newBalance } : prev));
           setApiKey("N/A (using token system now)");
         } else {
           const respData = await res.json();
@@ -244,7 +232,6 @@ const LLMConnector = () => {
     }
   };
 
-  // --- RENDER ---
   return (
     <div className="llm-connector">
       {/* If user is not logged in, show login form */}
@@ -267,7 +254,9 @@ const LLMConnector = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <button type="submit">Log In</button>
+            <button type="submit" disabled={loginLoading}>
+              {loginLoading ? "Logging in..." : "Log In"}
+            </button>
           </form>
         </div>
       )}
