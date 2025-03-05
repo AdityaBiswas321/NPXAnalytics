@@ -5,13 +5,13 @@
   padding: 10px;
   background-color: #f4f4f9;
   width: 100%;
-  height: 100vh; /* Ensure content is always within the viewport */
+  min-height: 100vh; /* Changed from height: 100vh to min-height */
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between; /* Distribute content evenly */
+  justify-content: flex-start; /* Changed from space-between to flex-start */
   box-sizing: border-box;
-  overflow: hidden; /* Prevent scrolling */
+  overflow-x: hidden; /* Allow scrolling vertically */
 }
 
 /* Hero Section */
@@ -23,7 +23,7 @@
   width: 95%;
   max-width: 1200px;
   text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: 20px; /* Increased margin to separate sections */
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
 }
 
@@ -36,7 +36,7 @@
 .hero-section .store-tagline {
   font-size: 14px;
   font-weight: 300;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
 }
 
 .cta-button {
@@ -57,49 +57,55 @@
 }
 
 /* Product Section */
+.product-section {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
 .product-container {
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 10px;
+  padding: 15px;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
   text-align: center;
   width: 90%;
   max-width: 450px;
-  margin-bottom: 5px;
 }
 
 .product-title {
   font-size: 18px;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
   color: #4caf50;
   font-weight: bold;
 }
 
 .product-description {
-  font-size: 12px;
+  font-size: 14px;
   color: #666;
-  margin-bottom: 5px;
-  line-height: 1.4;
+  margin-bottom: 10px;
+  line-height: 1.5;
 }
 
 .product-price {
-  font-size: 14px;
+  font-size: 16px;
   color: #000;
   font-weight: bold;
-  margin: 5px 0;
+  margin: 10px 0;
 }
 
-/* Payment Button Section */
+/* Payment Section */
 .payment-container {
-  margin-top: 5px;
+  margin-top: 15px;
 }
 
 .payment-button {
   background-color: #4caf50;
   color: #fff;
-  padding: 8px 10px;
-  font-size: 12px;
+  padding: 10px 15px;
+  font-size: 14px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -115,15 +121,15 @@
 .features-list {
   list-style: none;
   padding: 0;
-  margin: 5px 0;
+  margin: 10px 0;
   text-align: left;
   color: #333;
-  font-size: 12px;
-  line-height: 1.4;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .features-list li {
-  margin-bottom: 5px;
+  margin-bottom: 8px;
   display: flex;
   align-items: center;
 }
@@ -137,9 +143,12 @@
 
 /* Footer Section */
 .store-footer {
-  font-size: 10px;
+  font-size: 12px;
   color: #666;
   text-align: center;
+  margin-top: 20px;
+  padding: 10px;
+  width: 100%;
 }
 
 .store-footer a {
@@ -153,22 +162,152 @@
   color: #388e3c;
 }
 
+/* Materials Data Section */
+.materials-data-section {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.materials-data-section input {
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.materials-data-section button {
+  padding: 8px 12px;
+  font-size: 14px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.materials-data-section button:hover {
+  background-color: #43a047;
+}
+
+/* Expanded Features Section */
+.expanded-features {
+  text-align: center;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+  width: 90%;
+  max-width: 900px;
+}
+
+.expanded-title {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #4caf50;
+  font-weight: bold;
+}
+
+/* Use Cases Section */
+.use-cases {
+  text-align: center;
+  width: 100%;
+  margin-bottom: 30px;
+}
+
+.use-case-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.use-case-item {
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  width: 200px;
+}
+
+/* FAQ Section */
+.faq-section {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.faq-title {
+  font-size: 18px;
+  color: #4caf50;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.faq-toggle {
+  padding: 8px 12px;
+  font-size: 14px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.faq-toggle:hover {
+  background-color: #43a047;
+}
+
+.faq-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 10px;
+  text-align: left;
+}
+
+.faq-list li {
+  margin-bottom: 10px;
+}
+
+/* Testimonials */
+.testimonials-section {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.testimonials {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.testimonial {
+  max-width: 600px;
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+}
+
 /* Mobile-Friendly Adjustments */
 @media (max-width: 768px) {
   .hero-section {
-    padding: 8px;
+    padding: 10px;
   }
 
   .product-container {
     max-width: 100%;
   }
 
-  .features-list li {
-    font-size: 10px;
+  .use-case-grid {
+    flex-direction: column;
+    align-items: center;
   }
 
   .cta-button {
-    font-size: 10px;
-    padding: 5px 10px;
+    font-size: 12px;
+    padding: 6px 12px;
   }
 }
