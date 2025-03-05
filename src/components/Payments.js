@@ -13,7 +13,7 @@ import "../CSS/payment.css";
 /**
  * Payment form that’s iFramed or used directly.
  * - Log in to get a JWT.
- * - If logged in, can purchase 100 tokens for $1.00.
+ * - If logged in, can purchase 1000 tokens for $5.00.
  * - Saves token in localStorage.
  */
 const LLMConnector = () => {
@@ -134,7 +134,7 @@ const LLMConnector = () => {
     }
   };
 
-  // 3. Create Payment Intent ($1 = 100 tokens)
+  // 3. Create Payment Intent ($5 = 1000 tokens)
   const initiatePayment = async () => {
     if (!token) {
       setServerMessage("Please log in first.");
@@ -157,7 +157,7 @@ const LLMConnector = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ amount: 1.0 }), // $1
+        body: JSON.stringify({ amount: 5.0 }), // $5
       });
 
       if (!res.ok) {
@@ -216,7 +216,7 @@ const LLMConnector = () => {
           },
           body: JSON.stringify({
             paymentIntentId: result.paymentIntent.id,
-            tokens: 100, // number of tokens purchased
+            tokens: 1000, // number of tokens purchased
           }),
         });
 
@@ -279,9 +279,9 @@ const LLMConnector = () => {
           {!clientSecret && (
             <>
               <div className="payment-header">
-                <h2>Buy 100 Tokens</h2>
+                <h2>Buy 1000 Tokens</h2>
                 <p className="payment-description">
-                  Pay <span>$1.00</span> (USD) to add 100 tokens to your balance.
+                  Pay <span>$5.00</span> (USD) to add 1000 tokens to your balance.
                 </p>
               </div>
               <button
@@ -289,7 +289,7 @@ const LLMConnector = () => {
                 onClick={initiatePayment}
                 disabled={loadingPayment || serverCapacity === "Full"}
               >
-                {loadingPayment ? "Processing Payment..." : "Pay $1.00"}
+                {loadingPayment ? "Processing Payment..." : "Pay $5.00"}
               </button>
             </>
           )}
