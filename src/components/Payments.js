@@ -64,6 +64,8 @@ const LLMConnector = () => {
 
         const data = await res.json();
         setUser(data.user);
+        // Set token from the session token to use for subsequent requests
+        setToken(sessionToken);
         setIsVerifyingSession(false);
       } catch (error) {
         console.error("Error verifying session:", error);
@@ -129,8 +131,6 @@ const LLMConnector = () => {
         setLoginLoading(false);
         return;
       }
-      // Save token and update user state
-      localStorage.setItem("token", data.token);
       setToken(data.token);
       setUser(data.user);
       setAuthError("");
@@ -139,7 +139,7 @@ const LLMConnector = () => {
       console.log("Login successful:", data);
     } catch (err) {
       console.error("Login exception:", err);
-      setAuthError("Something went wrong. Check console.");
+      setAuthError("Something went wrong. Please try again.");
     } finally {
       setLoginLoading(false);
     }
@@ -269,7 +269,7 @@ const LLMConnector = () => {
 
   return (
     <div className="llm-connector">
-      {/* Show login form only if no user and session verification failed */}
+      {/* Show login form only if no user */}
       {!user && (
         <div className="login-form-container">
           <h2>Please Log In to Buy Tokens</h2>
@@ -296,8 +296,8 @@ const LLMConnector = () => {
         </div>
       )}
 
-      {/* If user is logged in, show payment UI */}
-      {token && (
+      {/* Show payment UI if user is authenticated */}
+      {user && (
         <div className="settings-container">
           {/* Payment step 1: create PaymentIntent */}
           {!clientSecret && (
