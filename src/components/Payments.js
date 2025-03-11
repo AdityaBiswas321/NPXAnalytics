@@ -11,10 +11,10 @@ import {
 import "../CSS/payment.css";
 
 /**
- * Payment form that’s iFramed or used directly.
- * - Log in to get a JWT.
- * - If logged in, can purchase 1000 tokens for $5.00.
- * - Saves token in localStorage.
+ * Payment form component.
+ * - Authenticate to access payment features
+ * - Purchase 1000 tokens for $5.00
+ * - Manages user session state
  */
 const LLMConnector = () => {
   // Payment states
@@ -27,27 +27,53 @@ const LLMConnector = () => {
   const [paymentInitiated, setPaymentInitiated] = useState(false);
 
   // Auth states
-  const [token, setToken] = useState(null); // JWT token
-  const [user, setUser] = useState(null);   // user object from server
+  const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
   const [loginLoading, setLoginLoading] = useState(false);
+  const [isVerifyingSession, setIsVerifyingSession] = useState(true);
 
   // If you had ephemeral keys in older code, can remove if not needed:
   const [apiKey, setApiKey] = useState("");
 
   const backendURL = "https://mysterious-river-47357-494b914b38d7.herokuapp.com";
 
-  // On mount, check localStorage for an existing token and fetch current user
+  // On mount, check for auth token in URL
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    if (storedToken) {
-      console.log("Token found in localStorage:", storedToken);
-      setToken(storedToken);
-      fetchCurrentUser(storedToken);
-    }
-  }, []);
+    const verifySession = async () => {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const sessionToken = params.get("token");
+
+        if (!sessionToken) {
+          setIsVerifyingSession(false);
+          return;
+        }
+
+        const res = await fetch(`${backendURL}/auth/verify-session`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: sessionToken }),
+        });
+
+        if (!res.ok) {
+          throw new Error("Session verification failed");
+        }
+
+        const data = await res.json();
+        setUser(data.user);
+        setIsVerifyingSession(false);
+      } catch (error) {
+        console.error("Error verifying session:", error);
+        setAuthError("Authentication failed. Please try logging in.");
+        setIsVerifyingSession(false);
+      }
+    };
+
+    verifySession();
+  }, [backendURL]);
 
   // Periodically fetch server capacity
   useEffect(() => {
@@ -232,10 +258,19 @@ const LLMConnector = () => {
     }
   };
 
+  // Update the return statement to handle verification state
+  if (isVerifyingSession) {
+    return (
+      <div className="llm-connector">
+        <div className="loading-message">Verifying authentication...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="llm-connector">
-      {/* If user is not logged in, show login form */}
-      {!token && (
+      {/* Show login form only if no user and session verification failed */}
+      {!user && (
         <div className="login-form-container">
           <h2>Please Log In to Buy Tokens</h2>
           {authError && <p style={{ color: "red" }}>{authError}</p>}
