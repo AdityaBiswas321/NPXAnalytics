@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Payment from "./components/Payments"; // Payment component
+import SubscriptionPaymentForm from "./components/Payments"; // Updated payment component
 import StorePage from "./pages/StorePage"; // StorePage component
 import ContactSupport from "./pages/ContactSupport"; // ContactSupport component
 import TermsOfService from "./pages/TermsOfService"; // TermsOfService component
@@ -21,7 +21,7 @@ function App() {
           <Route path="/" element={<StorePage />} />
 
           {/* Payment route */}
-          <Route path="/payment-app" element={<Payment />} />
+          <Route path="/payment-app" element={<SubscriptionPaymentForm />} />
 
           {/* Contact Support route */}
           <Route path="/contact-support" element={<ContactSupport />} />

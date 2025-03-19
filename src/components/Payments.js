@@ -1,4 +1,4 @@
-// File: /src/components/LLMConnector.js
+// File: /src/components/Payments.js
 
 import React, { useState, useEffect } from "react";
 import {
@@ -11,34 +11,38 @@ import {
 import "../CSS/payment.css";
 
 /**
- * Payment form component.
- * - Authenticate to access payment features
- * - Purchase 1000 tokens for $5.00
- * - Manages user session state
+ * Subscription Payment form component.
+ * - Premium subscription for $15/month
+ * - Collects user information and payment details
  */
-const LLMConnector = () => {
+const SubscriptionPaymentForm = () => {
   // Payment states
   const stripe = useStripe();
   const elements = useElements();
   const [clientSecret, setClientSecret] = useState("");
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [serverMessage, setServerMessage] = useState("");
-  const [serverCapacity, setServerCapacity] = useState("Checking...");
-  const [paymentInitiated, setPaymentInitiated] = useState(false);
 
-  // Auth states
+  // Form states
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [country, setCountry] = useState("Canada");
+  const [province, setProvince] = useState("British Columbia");
+  const [postalCode, setPostalCode] = useState("");
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [showCouponInput, setShowCouponInput] = useState(false);
+  const [appliedDiscount, setAppliedDiscount] = useState(0);
+
+  // Auth state from token in URL
   const [token, setToken] = useState(null);
   const [user, setUser] = useState(null);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [authError, setAuthError] = useState("");
-  const [loginLoading, setLoginLoading] = useState(false);
   const [isVerifyingSession, setIsVerifyingSession] = useState(true);
 
-  // If you had ephemeral keys in older code, can remove if not needed:
-  const [apiKey, setApiKey] = useState("");
-
-  const backendURL = "https://mysterious-river-47357-494b914b38d7.herokuapp.com";
+  const backendURL = process.env.REACT_APP_BACKEND_URL || "http://localhost:3000";
+  const monthlyPrice = 15.00;
+  const discountedPrice = monthlyPrice - appliedDiscount;
 
   // On mount, check for auth token in URL
   useEffect(() => {
@@ -66,10 +70,16 @@ const LLMConnector = () => {
         setUser(data.user);
         // Set token from the session token to use for subsequent requests
         setToken(sessionToken);
+        
+        // Pre-fill email if available from user data
+        if (data.user && data.user.email) {
+          setEmail(data.user.email);
+        }
+        
         setIsVerifyingSession(false);
       } catch (error) {
         console.error("Error verifying session:", error);
-        setAuthError("Authentication failed. Please try logging in.");
+        setServerMessage("Authentication failed. Please try logging in again.");
         setIsVerifyingSession(false);
       }
     };
@@ -77,367 +87,388 @@ const LLMConnector = () => {
     verifySession();
   }, [backendURL]);
 
-  // Periodically fetch server capacity
-  useEffect(() => {
-    const fetchServerCapacity = async () => {
-      try {
-        const res = await fetch(`${backendURL}/server/server-capacity`);
-        if (!res.ok) {
-          setServerCapacity("Error");
-          return;
-        }
-        const data = await res.json();
-        console.log("Server capacity data:", data);
-        if (data.status === "available") {
-          setServerCapacity("Available");
-          setServerMessage("");
-        } else if (data.status === "moderate") {
-          setServerCapacity("Moderate");
-          setServerMessage("");
-        } else if (data.status === "full") {
-          setServerCapacity("Full");
-          setServerMessage("Server is at capacity. Please wait until a key becomes free.");
-        } else {
-          setServerCapacity("Unknown");
-        }
-      } catch (error) {
-        console.error("Error fetching server capacity:", error);
-        setServerCapacity("Error");
-      }
-    };
-
-    fetchServerCapacity();
-    const interval = setInterval(fetchServerCapacity, 60000);
-    return () => clearInterval(interval);
-  }, [backendURL]);
-
-  // Handle user login
-  const handleLogin = async (e) => {
+  // Create Subscription Intent
+  const handleSubscribe = async (e) => {
     e.preventDefault();
-    setAuthError("");
-    setServerMessage("");
-    setLoginLoading(true);
-    console.log("Login initiated with email:", email);
-    try {
-      const res = await fetch(`${backendURL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setAuthError(data.error || "Login failed.");
-        console.error("Login error response:", data);
-        setLoginLoading(false);
-        return;
-      }
-      setToken(data.token);
-      setUser(data.user);
-      setAuthError("");
-      setEmail("");
-      setPassword("");
-      console.log("Login successful:", data);
-    } catch (err) {
-      console.error("Login exception:", err);
-      setAuthError("Something went wrong. Please try again.");
-    } finally {
-      setLoginLoading(false);
-    }
-  };
-
-  // Retrieve current user using token
-  const fetchCurrentUser = async (authToken) => {
-    try {
-      const res = await fetch(`${backendURL}/auth/me`, {
-        headers: { Authorization: `Bearer ${authToken}` },
-      });
-      if (res.ok) {
-        const userData = await res.json();
-        console.log("Fetched current user:", userData);
-        setUser(userData);
-      } else {
-        localStorage.removeItem("token");
-        setToken(null);
-        setUser(null);
-      }
-    } catch (err) {
-      console.error("Error fetching user:", err);
-    }
-  };
-
-  // Create Payment Intent ($5.00 = 1000 tokens)
-  const initiatePayment = async () => {
-    if (!token) {
-      setServerMessage("Please log in first.");
+    
+    if (!stripe || !elements) {
+      setServerMessage("Stripe has not loaded yet. Please try again later.");
       return;
     }
+    
+    if (!agreedToTerms) {
+      setServerMessage("You must agree to the Terms & Conditions to continue.");
+      return;
+    }
+    
     setLoadingPayment(true);
     setServerMessage("");
-    setPaymentInitiated(true);
+    
     try {
-      if (serverCapacity === "Full") {
-        setServerMessage("Server is at capacity; payment blocked. Please wait.");
-        setLoadingPayment(false);
-        return;
-      }
-      const res = await fetch(`${backendURL}/payments/create-payment-intent`, {
+      // Create payment intent for subscription
+      const res = await fetch(`${backendURL}/payments/create-subscription`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
-        body: JSON.stringify({ amount: 5.0 }),
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          email,
+          country,
+          province,
+          postalCode,
+          couponCode: couponCode || undefined,
+          plan: "premium"
+        }),
       });
+      
       if (!res.ok) {
         const data = await res.json();
-        setServerMessage(data.error || "Error creating payment intent.");
+        setServerMessage(data.error || "Error creating subscription.");
+        setLoadingPayment(false);
         return;
       }
+      
       const data = await res.json();
       if (!data.clientSecret) {
-        setServerMessage("Missing clientSecret in response.");
+        setServerMessage("Missing client secret in response.");
+        setLoadingPayment(false);
         return;
       }
-      console.log("Payment intent created:", data);
-      setClientSecret(data.clientSecret);
+      
+      // Process the payment with Stripe
+      const cardElement = elements.getElement(CardNumberElement);
+      const { error, paymentIntent } = await stripe.confirmCardPayment(data.clientSecret, {
+        payment_method: {
+          card: cardElement,
+          billing_details: {
+            name: `${firstName} ${lastName}`,
+            email,
+            address: {
+              country,
+              state: province,
+              postal_code: postalCode
+            }
+          }
+        }
+      });
+      
+      if (error) {
+        setServerMessage(`Payment failed: ${error.message}`);
+      } else if (paymentIntent && paymentIntent.status === "succeeded") {
+        // Confirm subscription with backend
+        const confirmRes = await fetch(`${backendURL}/payments/confirm-subscription`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+          body: JSON.stringify({
+            paymentIntentId: paymentIntent.id,
+            email,
+          }),
+        });
+        
+        if (confirmRes.ok) {
+          setServerMessage("Your subscription has been activated successfully!");
+        } else {
+          const errorData = await confirmRes.json();
+          setServerMessage(errorData.error || "Error activating subscription.");
+        }
+      }
     } catch (error) {
-      console.error("Error initiating payment:", error);
-      setServerMessage("Failed to initiate payment.");
+      console.error("Error during payment:", error);
+      setServerMessage("An error occurred during payment processing.");
     } finally {
       setLoadingPayment(false);
     }
   };
 
-  // Confirm Payment with Stripe and finalize token purchase
-  const handlePayment = async () => {
-    if (!stripe || !elements) return;
-    setLoadingPayment(true);
-    setServerMessage("");
+  // Handle coupon application
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      return;
+    }
+    
     try {
-      if (serverCapacity === "Full") {
-        setServerMessage("Server is full, payment cancelled. Please wait until capacity is available again.");
-        setLoadingPayment(false);
-        return;
-      }
-      const cardNumber = elements.getElement(CardNumberElement);
-      const result = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: { card: cardNumber },
+      const res = await fetch(`${backendURL}/payments/apply-coupon`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        body: JSON.stringify({ couponCode }),
       });
-      if (result.error) {
-        console.error("Payment error:", result.error.message);
-        setServerMessage("Payment failed. Please try again.");
-        return;
-      }
-      if (result.paymentIntent.status === "succeeded") {
-        const res = await fetch(`${backendURL}/payments/generate-key-after-payment`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            paymentIntentId: result.paymentIntent.id,
-            tokens: 1000,
-          }),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setServerMessage(`Success! You now have ${data.newBalance} total tokens.`);
-          setUser((prev) => (prev ? { ...prev, tokenBalance: data.newBalance } : prev));
-          setApiKey("N/A (using token system now)");
-        } else {
-          const respData = await res.json();
-          setServerMessage(respData.error || "Failed to update token balance.");
-        }
+      
+      const data = await res.json();
+      
+      if (res.ok && data.valid) {
+        setAppliedDiscount(data.discount || 0);
+        setServerMessage(`Coupon applied: ${data.description || "Discount applied"}`);
+      } else {
+        setServerMessage(data.error || "Invalid coupon code");
       }
     } catch (error) {
-      console.error("Error during payment process:", error);
-      setServerMessage("An error occurred during payment.");
-    } finally {
-      setLoadingPayment(false);
+      console.error("Error applying coupon:", error);
+      setServerMessage("Error applying coupon");
     }
   };
 
   // Update the return statement to handle verification state
   if (isVerifyingSession) {
     return (
-      <div className="llm-connector">
+      <div className="payment-form-container">
         <div className="loading-message">Verifying authentication...</div>
       </div>
     );
   }
 
   return (
-    <div className="llm-connector">
-      {/* Show login form only if no user */}
-      {!user && (
-        <div className="login-form-container">
-          <h2>Please Log In to Buy Tokens</h2>
-          {authError && <p style={{ color: "red" }}>{authError}</p>}
-          <form onSubmit={handleLogin}>
-            <label>Email:</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <label>Password:</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <button type="submit" disabled={loginLoading}>
-              {loginLoading ? "Logging in..." : "Log In"}
-            </button>
+    <div className="payment-form-container">
+      <div className="payment-form-wrapper">
+        <div className="payment-form-left">
+          <form onSubmit={handleSubscribe}>
+            <div className="form-field">
+              <label htmlFor="firstName">First Name <span className="required">*</span></label>
+              <input
+                type="text"
+                id="firstName"
+                placeholder="Enter your first name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-field">
+              <label htmlFor="lastName">Last Name <span className="required">*</span></label>
+              <input
+                type="text"
+                id="lastName"
+                placeholder="Enter your last name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-field">
+              <label htmlFor="country">Country <span className="required">*</span></label>
+              <div className="select-wrapper">
+                <select
+                  id="country"
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  required
+                >
+                  <option value="Canada">Canada</option>
+                  <option value="United States">United States</option>
+                  <option value="United Kingdom">United Kingdom</option>
+                  {/* Add more countries as needed */}
+                </select>
+              </div>
+            </div>
+            
+            <div className="form-field">
+              <label htmlFor="province">Province <span className="required">*</span></label>
+              <div className="select-wrapper">
+                <select
+                  id="province"
+                  value={province}
+                  onChange={(e) => setProvince(e.target.value)}
+                  required
+                >
+                  <option value="British Columbia">British Columbia</option>
+                  <option value="Ontario">Ontario</option>
+                  <option value="Quebec">Quebec</option>
+                  <option value="Alberta">Alberta</option>
+                  {/* Add more provinces/states as needed */}
+                </select>
+              </div>
+            </div>
+            
+            <div className="form-field">
+              <label htmlFor="postalCode">Postal Code <span className="required">*</span></label>
+              <input
+                type="text"
+                id="postalCode"
+                placeholder="Enter postal code"
+                value={postalCode}
+                onChange={(e) => setPostalCode(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-field">
+              <label htmlFor="email">Email <span className="required">*</span></label>
+              <input
+                type="email"
+                id="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-field card-info">
+              <label>Card Info</label>
+              <div className="card-element">
+                <CardNumberElement
+                  options={{
+                    style: {
+                      base: {
+                        fontSize: "16px",
+                        color: "#32325d",
+                        "::placeholder": { color: "#aab7c4" },
+                      },
+                      invalid: { color: "#fa755a" },
+                    },
+                    placeholder: "Card number",
+                  }}
+                />
+              </div>
+            </div>
+            
+            <div className="card-details-row">
+              <div className="form-field expiry">
+                <CardExpiryElement
+                  options={{
+                    style: {
+                      base: {
+                        fontSize: "16px",
+                        color: "#32325d",
+                        "::placeholder": { color: "#aab7c4" },
+                      },
+                      invalid: { color: "#fa755a" },
+                    },
+                    placeholder: "MM/YY",
+                  }}
+                />
+              </div>
+              
+              <div className="form-field cvc">
+                <CardCvcElement
+                  options={{
+                    style: {
+                      base: {
+                        fontSize: "16px",
+                        color: "#32325d",
+                        "::placeholder": { color: "#aab7c4" },
+                      },
+                      invalid: { color: "#fa755a" },
+                    },
+                    placeholder: "CVV",
+                  }}
+                />
+              </div>
+            </div>
+            
+            {serverMessage && (
+              <div className="server-message">
+                {serverMessage}
+              </div>
+            )}
+            
+            <div className="form-footer">
+              <div className="terms-checkbox">
+                <input
+                  type="checkbox"
+                  id="terms"
+                  checked={agreedToTerms}
+                  onChange={(e) => setAgreedToTerms(e.target.checked)}
+                />
+                <label htmlFor="terms">
+                  I agree to the <a href="/terms" target="_blank">Terms & Conditions</a>
+                </label>
+              </div>
+              
+              <button 
+                type="submit" 
+                className="subscribe-btn" 
+                disabled={loadingPayment || !agreedToTerms}
+              >
+                {loadingPayment ? "Processing..." : "Subscribe"}
+              </button>
+            </div>
           </form>
         </div>
-      )}
-
-      {/* Show payment UI if user is authenticated */}
-      {user && (
-        <div className="settings-container">
-          {/* Payment step 1: create PaymentIntent */}
-          {!clientSecret && (
-            <>
-              <div className="payment-header">
-                <h2>Buy 1000 Tokens</h2>
-                <p className="payment-description">
-                  Pay <span>$5.00</span> (USD) to add 1000 tokens to your balance.
-                </p>
-              </div>
-              <button
-                className="payment-button"
-                onClick={initiatePayment}
-                disabled={loadingPayment || serverCapacity === "Full"}
-              >
-                {loadingPayment ? "Processing Payment..." : "Pay $5.00"}
-              </button>
-            </>
-          )}
-
-          {/* Payment step 2: confirm card payment */}
-          {clientSecret && (
-            <div className="card-element-container">
-              {serverMessage && <p className="server-message">{serverMessage}</p>}
-              <div className="card-number-wrapper">
-                <label>Card Number</label>
-                <div className="card-element">
-                  <CardNumberElement
-                    options={{
-                      style: {
-                        base: {
-                          fontSize: "16px",
-                          color: "#fff",
-                          "::placeholder": { color: "#bfbfbf" },
-                        },
-                        invalid: { color: "#fa755a" },
-                      },
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div className="card-details-wrapper">
-                <div className="card-field">
-                  <label>Expiration</label>
-                  <div className="card-input">
-                    <CardExpiryElement
-                      options={{
-                        style: {
-                          base: {
-                            fontSize: "16px",
-                            color: "#fff",
-                            "::placeholder": { color: "#bfbfbf" },
-                          },
-                          invalid: { color: "#fa755a" },
-                        },
-                      }}
-                    />
-                  </div>
-                </div>
-                <div className="card-field">
-                  <label>CVC</label>
-                  <div className="card-input">
-                    <CardCvcElement
-                      options={{
-                        style: {
-                          base: {
-                            fontSize: "16px",
-                            color: "#fff",
-                            "::placeholder": { color: "#bfbfbf" },
-                          },
-                          invalid: { color: "#fa755a" },
-                        },
-                      }}
-                    />
-                  </div>
-                </div>
-                <div className="card-field">
-                  <label>Postal Code</label>
+        
+        <div className="payment-form-right">
+          <div className="order-summary">
+            <h3>Premium</h3>
+            <div className="coupon-row">
+              <div className="original-plan">Omega Plan</div>
+              {showCouponInput ? (
+                <div className="coupon-input-group">
                   <input
                     type="text"
-                    placeholder="Postal Code"
-                    className="card-input"
+                    placeholder="Enter coupon"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value)}
                   />
+                  <button 
+                    onClick={handleApplyCoupon}
+                    type="button"
+                  >
+                    Apply
+                  </button>
                 </div>
-              </div>
-
-              <button
-                className="confirm-payment-button"
-                onClick={handlePayment}
-                disabled={loadingPayment}
-              >
-                {loadingPayment ? "Confirming Payment..." : "Confirm Payment"}
-              </button>
+              ) : (
+                <button 
+                  onClick={() => setShowCouponInput(true)}
+                  className="apply-coupon-btn"
+                  type="button"
+                >
+                  Apply Coupon
+                </button>
+              )}
             </div>
-          )}
-
-          {/* Ephemeral key from older logic: can remove if not used */}
-          {apiKey && apiKey !== "N/A (using token system now)" && (
-            <div className="api-key-container">
-              <p className="api-key-header">Your API Key</p>
-              <div className="api-key-display">
-                <span className="api-key-value">{apiKey}</span>
+            
+            <div className="price-details">
+              <div className="price-row">
+                <span>Monthly Price</span>
+                <span>${monthlyPrice.toFixed(2)}</span>
               </div>
-              <p className="api-key-instructions">
-                Please <strong>copy and save</strong> your API key.
+              
+              {appliedDiscount > 0 && (
+                <div className="price-row discount">
+                  <span>Discount</span>
+                  <span>-${appliedDiscount.toFixed(2)}</span>
+                </div>
+              )}
+            </div>
+            
+            <div className="total-price">
+              <div className="price-row">
+                <span>You Pay</span>
+                <span>USD ${discountedPrice.toFixed(2)}</span>
+              </div>
+            </div>
+            
+            <div className="subscription-info">
+              <p>
+                This subscription automatically renews monthly, 
+                and you'll be notified in advance of the monthly 
+                charge. Subscription can be cancelled from your profile 
+                or via AI Chat on your statement and you can
+                cancel anytime from your profile.
               </p>
             </div>
-          )}
-        </div>
-      )}
-
-      {serverMessage && <p className="server-message">{serverMessage}</p>}
-
-      {/* Show capacity if no payment is in progress */}
-      {!paymentInitiated && (
-        <div
-          className={`server-status ${
-            serverCapacity === "Full"
-              ? "capacity-full"
-              : serverCapacity === "Available"
-              ? "capacity-available"
-              : serverCapacity === "Moderate"
-              ? "capacity-moderate"
-              : "capacity-error"
-          }`}
-        >
-          <h3 className="server-capacity-header">Server Capacity</h3>
-          <div className="capacity-indicator">
-            <span className="status-dot"></span>
-            <p>
-              {serverCapacity === "Error"
-                ? "Error checking capacity"
-                : serverCapacity}
-            </p>
+            
+            <div className="security-info">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 6c1.4 0 2.8 1.1 2.8 2.5V11c.6 0 1.2.6 1.2 1.3v3.5c0 .6-.6 1.2-1.3 1.2H9.2c-.6 0-1.2-.6-1.2-1.3v-3.5c0-.6.6-1.2 1.2-1.2V9.5C9.2 8.1 10.6 7 12 7z" />
+              </svg>
+              <span>Payments are secure and encrypted</span>
+            </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
 
-export default LLMConnector;
+export default SubscriptionPaymentForm;
