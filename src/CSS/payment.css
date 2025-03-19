@@ -11,6 +11,307 @@
   background-color: #1e1e1e;
 }
 
+/* Payment Form Container - Full Width */
+.payment-form-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: #121212;
+  color: #fff;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+.loading-message {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: #a0a0a0;
+}
+
+.payment-form-wrapper {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: row;
+  gap: 3rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+  .payment-form-wrapper {
+    flex-direction: column-reverse;
+    gap: 2rem;
+    padding: 1.5rem;
+  }
+}
+
+.payment-form-left {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+}
+
+.payment-form-right {
+  flex: 2;
+}
+
+.payment-form-left form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-field label {
+  font-size: 1rem;
+  color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.required {
+  color: #a36cff;
+}
+
+.form-field input {
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  background-color: #1e1e1e;
+  border: 1px solid #444;
+  color: #fff;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.form-field input:focus {
+  outline: none;
+  border-color: #a36cff;
+}
+
+.select-wrapper {
+  position: relative;
+}
+
+.select-wrapper select {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  background-color: #1e1e1e;
+  border: 1px solid #444;
+  color: #fff;
+  font-size: 1rem;
+  appearance: none;
+}
+
+.select-wrapper::after {
+  content: "▼";
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #888;
+  font-size: 0.8rem;
+}
+
+.card-info {
+  margin-top: 1rem;
+}
+
+.card-element {
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  background-color: #1e1e1e;
+  border: 1px solid #444;
+}
+
+.card-details-row {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.card-details-row .form-field {
+  flex: 1;
+  border-radius: 8px;
+  background-color: #1e1e1e;
+  border: 1px solid #444;
+  padding: 0.8rem 1rem;
+}
+
+.server-message {
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: rgba(163, 108, 255, 0.1);
+  color: #f0f0f0;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.form-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.terms-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.terms-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #a36cff;
+}
+
+.terms-checkbox label {
+  font-size: 0.9rem;
+  color: #c0c0c0;
+}
+
+.terms-checkbox a {
+  color: #a36cff;
+  text-decoration: none;
+}
+
+.subscribe-btn {
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #a36cff;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.subscribe-btn:hover {
+  background-color: #9159ff;
+}
+
+.subscribe-btn:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+}
+
+/* Order Summary */
+.order-summary {
+  background-color: #1e1e24;
+  border-radius: 12px;
+  padding: 1.5rem;
+  position: sticky;
+  top: 2rem;
+}
+
+.order-summary h3 {
+  font-size: 1.5rem;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #a36cff;
+}
+
+.coupon-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.original-plan {
+  font-size: 0.9rem;
+  color: #c0c0c0;
+}
+
+.coupon-input-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.coupon-input-group input {
+  padding: 0.5rem;
+  border-radius: 4px;
+  background-color: #252530;
+  border: 1px solid #444;
+  color: #fff;
+}
+
+.coupon-input-group button,
+.apply-coupon-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  background-color: #252530;
+  border: 1px solid #444;
+  color: #a36cff;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.price-details {
+  border-top: 1px solid #333;
+  padding-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  color: #c0c0c0;
+}
+
+.price-row.discount {
+  color: #9cd69a;
+}
+
+.total-price {
+  border-top: 1px solid #333;
+  padding-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.total-price .price-row {
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.subscription-info {
+  font-size: 0.8rem;
+  color: #a0a0a0;
+  line-height: 1.5;
+  margin-top: 1.5rem;
+}
+
+.security-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  color: #a0a0a0;
+  font-size: 0.9rem;
+}
+
+.security-info svg {
+  color: #a36cff;
+}
+
 /* Login Form Container Styling */
 .login-form-container {
   background-color: #2b2b2b;
@@ -312,322 +613,5 @@ html, body {
   .login-form-container,
   .settings-container {
     padding: 15px;
-  }
-}
-
-/* Payment Form Styles */
-.payment-form-container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  color: #fff;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-}
-
-.payment-form-wrapper {
-  display: flex;
-  flex-direction: row;
-  gap: 30px;
-  width: 100%;
-}
-
-.payment-form-left {
-  flex: 1;
-  max-width: 65%;
-}
-
-.payment-form-right {
-  flex: 0 0 35%;
-  min-width: 300px;
-}
-
-/* Form Fields */
-.form-field {
-  margin-bottom: 20px;
-}
-
-.form-field label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 14px;
-  color: #f5f5f5;
-}
-
-.form-field .required {
-  color: #ff3366;
-}
-
-.form-field input[type="text"],
-.form-field input[type="email"] {
-  width: 100%;
-  padding: 12px 15px;
-  border: 1px solid #444;
-  border-radius: 4px;
-  background-color: #222;
-  color: #fff;
-  font-size: 16px;
-  transition: border-color 0.3s;
-}
-
-.form-field input[type="text"]:focus,
-.form-field input[type="email"]:focus {
-  border-color: #6c5ce7;
-  outline: none;
-}
-
-.form-field input::placeholder {
-  color: #888;
-}
-
-.select-wrapper {
-  position: relative;
-}
-
-.select-wrapper::after {
-  content: "▼";
-  position: absolute;
-  right: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  font-size: 12px;
-  color: #888;
-}
-
-.form-field select {
-  width: 100%;
-  padding: 12px 15px;
-  border: 1px solid #444;
-  border-radius: 4px;
-  background-color: #222;
-  color: #fff;
-  font-size: 16px;
-  appearance: none;
-  cursor: pointer;
-}
-
-.form-field select:focus {
-  border-color: #6c5ce7;
-  outline: none;
-}
-
-/* Card Info Section */
-.card-info {
-  margin-top: 30px;
-}
-
-.card-element {
-  padding: 12px 15px;
-  border: 1px solid #444;
-  border-radius: 4px;
-  background-color: #222;
-  color: #fff;
-}
-
-.card-details-row {
-  display: flex;
-  gap: 15px;
-  margin-top: 15px;
-}
-
-.card-details-row .form-field {
-  flex: 1;
-  position: relative;
-}
-
-.form-field.expiry,
-.form-field.cvc {
-  padding: 12px 15px;
-  border: 1px solid #444;
-  border-radius: 4px;
-  background-color: #222;
-  min-height: 47px;
-}
-
-/* Order Summary */
-.order-summary {
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
-  padding: 25px;
-}
-
-.order-summary h3 {
-  font-size: 22px;
-  margin-top: 0;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.coupon-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.original-plan {
-  font-size: 14px;
-  color: #ccc;
-}
-
-.apply-coupon-btn {
-  border: none;
-  background: transparent;
-  color: #6c5ce7;
-  cursor: pointer;
-  font-size: 14px;
-  text-decoration: underline;
-}
-
-.coupon-input-group {
-  display: flex;
-  gap: 5px;
-}
-
-.coupon-input-group input {
-  padding: 8px 10px;
-  border: 1px solid #444;
-  border-radius: 4px;
-  background-color: #222;
-  color: #fff;
-  font-size: 14px;
-}
-
-.coupon-input-group button {
-  padding: 8px 12px;
-  background-color: #6c5ce7;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.price-details {
-  margin-bottom: 20px;
-}
-
-.price-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.price-row.discount {
-  color: #6c5ce7;
-}
-
-.total-price {
-  padding-top: 15px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 20px;
-  font-weight: bold;
-  font-size: 16px;
-}
-
-.subscription-info {
-  font-size: 13px;
-  line-height: 1.5;
-  color: #bbb;
-  margin-bottom: 20px;
-}
-
-.security-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: #bbb;
-}
-
-.security-info svg {
-  color: #6c5ce7;
-}
-
-/* Form Footer */
-.form-footer {
-  margin-top: 30px;
-}
-
-.terms-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 15px;
-}
-
-.terms-checkbox input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-}
-
-.terms-checkbox label {
-  font-size: 14px;
-  margin-bottom: 0;
-}
-
-.terms-checkbox a {
-  color: #6c5ce7;
-  text-decoration: none;
-}
-
-.subscribe-btn {
-  width: 100%;
-  padding: 14px;
-  background-color: #6c5ce7;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.subscribe-btn:hover {
-  background-color: #5a4ecc;
-}
-
-.subscribe-btn:disabled {
-  background-color: #4a4a4a;
-  cursor: not-allowed;
-}
-
-/* Server Messages */
-.server-message {
-  padding: 12px;
-  margin: 15px 0;
-  border-radius: 4px;
-  background-color: rgba(255, 51, 102, 0.1);
-  color: #ff3366;
-  font-size: 14px;
-}
-
-/* Loading State */
-.loading-message {
-  text-align: center;
-  padding: 50px;
-  font-size: 18px;
-  color: #bbb;
-}
-
-/* Mobile Responsiveness */
-@media (max-width: 768px) {
-  .payment-form-wrapper {
-    flex-direction: column;
-  }
-  
-  .payment-form-left,
-  .payment-form-right {
-    max-width: 100%;
-  }
-  
-  .card-details-row {
-    flex-direction: column;
-    gap: 20px;
   }
 }

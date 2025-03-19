@@ -39,6 +39,7 @@ const SubscriptionPaymentForm = () => {
   const [token, setToken] = useState(null);
   const [user, setUser] = useState(null);
   const [isVerifyingSession, setIsVerifyingSession] = useState(true);
+  const [error, setError] = useState(null);
 
   const backendURL = process.env.REACT_APP_BACKEND_URL || "http://localhost:3000";
   const monthlyPrice = 15.00;
@@ -52,6 +53,7 @@ const SubscriptionPaymentForm = () => {
         const sessionToken = params.get("token");
 
         if (!sessionToken) {
+          setError("No authentication token provided");
           setIsVerifyingSession(false);
           return;
         }
@@ -79,7 +81,7 @@ const SubscriptionPaymentForm = () => {
         setIsVerifyingSession(false);
       } catch (error) {
         console.error("Error verifying session:", error);
-        setServerMessage("Authentication failed. Please try logging in again.");
+        setError("Authentication failed. Please try logging in again.");
         setIsVerifyingSession(false);
       }
     };
@@ -173,6 +175,7 @@ const SubscriptionPaymentForm = () => {
         
         if (confirmRes.ok) {
           setServerMessage("Your subscription has been activated successfully!");
+          window.parent.postMessage({ type: "PAYMENT_SUCCESS" }, "*");
         } else {
           const errorData = await confirmRes.json();
           setServerMessage(errorData.error || "Error activating subscription.");
@@ -216,11 +219,20 @@ const SubscriptionPaymentForm = () => {
     }
   };
 
-  // Update the return statement to handle verification state
+  // Display loading message while verifying
   if (isVerifyingSession) {
     return (
       <div className="payment-form-container">
         <div className="loading-message">Verifying authentication...</div>
+      </div>
+    );
+  }
+
+  // Display error message if verification failed
+  if (error) {
+    return (
+      <div className="payment-form-container">
+        <div className="loading-message">{error}</div>
       </div>
     );
   }
@@ -314,15 +326,15 @@ const SubscriptionPaymentForm = () => {
             </div>
             
             <div className="form-field card-info">
-              <label>Card Info</label>
+              <label>Card Info <span className="required">*</span></label>
               <div className="card-element">
                 <CardNumberElement
                   options={{
                     style: {
                       base: {
                         fontSize: "16px",
-                        color: "#32325d",
-                        "::placeholder": { color: "#aab7c4" },
+                        color: "#fff",
+                        "::placeholder": { color: "#888" },
                       },
                       invalid: { color: "#fa755a" },
                     },
@@ -339,8 +351,8 @@ const SubscriptionPaymentForm = () => {
                     style: {
                       base: {
                         fontSize: "16px",
-                        color: "#32325d",
-                        "::placeholder": { color: "#aab7c4" },
+                        color: "#fff",
+                        "::placeholder": { color: "#888" },
                       },
                       invalid: { color: "#fa755a" },
                     },
@@ -355,8 +367,8 @@ const SubscriptionPaymentForm = () => {
                     style: {
                       base: {
                         fontSize: "16px",
-                        color: "#32325d",
-                        "::placeholder": { color: "#aab7c4" },
+                        color: "#fff",
+                        "::placeholder": { color: "#888" },
                       },
                       invalid: { color: "#fa755a" },
                     },
@@ -400,7 +412,7 @@ const SubscriptionPaymentForm = () => {
           <div className="order-summary">
             <h3>Premium</h3>
             <div className="coupon-row">
-              <div className="original-plan">Omega Plan</div>
+              <div className="original-plan">Monthly Premium</div>
               {showCouponInput ? (
                 <div className="coupon-input-group">
                   <input
@@ -452,9 +464,7 @@ const SubscriptionPaymentForm = () => {
               <p>
                 This subscription automatically renews monthly, 
                 and you'll be notified in advance of the monthly 
-                charge. Subscription can be cancelled from your profile 
-                or via AI Chat on your statement and you can
-                cancel anytime from your profile.
+                charge. You can cancel anytime from your profile.
               </p>
             </div>
             
