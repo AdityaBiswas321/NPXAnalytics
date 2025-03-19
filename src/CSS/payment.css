@@ -22,6 +22,9 @@
   background-color: #121212;
   color: #fff;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
 }
 
 .loading-message {
@@ -36,42 +39,52 @@
 
 .payment-form-wrapper {
   width: 100%;
-  max-width: 1200px;
+  max-width: 100%;
   display: flex;
   flex-direction: row;
-  gap: 3rem;
+  gap: 2rem;
   padding: 2rem;
   box-sizing: border-box;
 }
 
+@media (min-width: 1200px) {
+  .payment-form-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}
+
 @media (max-width: 900px) {
   .payment-form-wrapper {
-    flex-direction: column-reverse;
+    flex-direction: column;
     gap: 2rem;
     padding: 1.5rem;
   }
 }
 
 .payment-form-left {
-  flex: 3;
+  flex: 2;
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 .payment-form-right {
-  flex: 2;
+  flex: 1;
 }
 
 .payment-form-left form {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  width: 100%;
 }
 
 .form-field {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  width: 100%;
 }
 
 .form-field label {
@@ -94,6 +107,8 @@
   color: #fff;
   font-size: 1rem;
   transition: border-color 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form-field input:focus {
@@ -105,7 +120,8 @@
   position: relative;
 }
 
-.select-wrapper select {
+.select-wrapper select,
+.select-wrapper input {
   width: 100%;
   padding: 0.8rem 1rem;
   border-radius: 8px;
@@ -113,18 +129,20 @@
   border: 1px solid #444;
   color: #fff;
   font-size: 1rem;
-  appearance: none;
+  transition: all 0.3s ease;
 }
 
-.select-wrapper::after {
-  content: "▼";
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  color: #888;
-  font-size: 0.8rem;
+.select-wrapper select:focus,
+.select-wrapper input:focus {
+  outline: none;
+  border-color: #a36cff;
+  box-shadow: 0 0 0 2px rgba(163, 108, 255, 0.2);
+}
+
+.select-wrapper select option {
+  background-color: #1e1e1e;
+  color: #fff;
+  padding: 0.8rem;
 }
 
 .card-info {
@@ -155,10 +173,12 @@
 .server-message {
   padding: 1rem;
   border-radius: 8px;
-  background-color: rgba(163, 108, 255, 0.1);
+  background-color: rgba(163, 108, 255, 0.2);
   color: #f0f0f0;
   margin-top: 1rem;
   text-align: center;
+  font-size: 1rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .form-footer {
@@ -218,6 +238,8 @@
   padding: 1.5rem;
   position: sticky;
   top: 2rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .order-summary h3 {
@@ -225,42 +247,14 @@
   margin-top: 0;
   margin-bottom: 1.5rem;
   color: #a36cff;
+  text-align: center;
 }
 
-.coupon-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.original-plan {
-  font-size: 0.9rem;
-  color: #c0c0c0;
-}
-
-.coupon-input-group {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.coupon-input-group input {
-  padding: 0.5rem;
-  border-radius: 4px;
-  background-color: #252530;
-  border: 1px solid #444;
-  color: #fff;
-}
-
-.coupon-input-group button,
+.coupon-row,
+.coupon-input-group,
+.original-plan,
 .apply-coupon-btn {
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  background-color: #252530;
-  border: 1px solid #444;
-  color: #a36cff;
-  cursor: pointer;
-  font-size: 0.9rem;
+  display: none;
 }
 
 .price-details {
@@ -274,6 +268,7 @@
   justify-content: space-between;
   margin-bottom: 0.5rem;
   color: #c0c0c0;
+  font-size: 1.1rem;
 }
 
 .price-row.discount {
@@ -288,20 +283,22 @@
 
 .total-price .price-row {
   color: white;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: 600;
 }
 
 .subscription-info {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   color: #a0a0a0;
   line-height: 1.5;
   margin-top: 1.5rem;
+  text-align: center;
 }
 
 .security-info {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   margin-top: 1.5rem;
   color: #a0a0a0;

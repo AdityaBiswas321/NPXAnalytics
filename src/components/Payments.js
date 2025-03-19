@@ -31,9 +31,6 @@ const SubscriptionPaymentForm = () => {
   const [province, setProvince] = useState("British Columbia");
   const [postalCode, setPostalCode] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const [couponCode, setCouponCode] = useState("");
-  const [showCouponInput, setShowCouponInput] = useState(false);
-  const [appliedDiscount, setAppliedDiscount] = useState(0);
 
   // Auth state from token in URL
   const [token, setToken] = useState(null);
@@ -42,8 +39,7 @@ const SubscriptionPaymentForm = () => {
   const [error, setError] = useState(null);
 
   const backendURL = process.env.REACT_APP_BACKEND_URL || "http://localhost:3000";
-  const monthlyPrice = 15.00;
-  const discountedPrice = monthlyPrice - appliedDiscount;
+  const monthlyPrice = 7.49;
 
   // On mount, check for auth token in URL
   useEffect(() => {
@@ -121,7 +117,6 @@ const SubscriptionPaymentForm = () => {
           country,
           province,
           postalCode,
-          couponCode: couponCode || undefined,
           plan: "premium"
         }),
       });
@@ -189,36 +184,6 @@ const SubscriptionPaymentForm = () => {
     }
   };
 
-  // Handle coupon application
-  const handleApplyCoupon = async () => {
-    if (!couponCode.trim()) {
-      return;
-    }
-    
-    try {
-      const res = await fetch(`${backendURL}/payments/apply-coupon`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token && { Authorization: `Bearer ${token}` }),
-        },
-        body: JSON.stringify({ couponCode }),
-      });
-      
-      const data = await res.json();
-      
-      if (res.ok && data.valid) {
-        setAppliedDiscount(data.discount || 0);
-        setServerMessage(`Coupon applied: ${data.description || "Discount applied"}`);
-      } else {
-        setServerMessage(data.error || "Invalid coupon code");
-      }
-    } catch (error) {
-      console.error("Error applying coupon:", error);
-      setServerMessage("Error applying coupon");
-    }
-  };
-
   // Display loading message while verifying
   if (isVerifyingSession) {
     return (
@@ -272,32 +237,126 @@ const SubscriptionPaymentForm = () => {
                 <select
                   id="country"
                   value={country}
-                  onChange={(e) => setCountry(e.target.value)}
+                  onChange={(e) => {
+                    setCountry(e.target.value);
+                    // Reset province when country changes
+                    setProvince("");
+                  }}
                   required
                 >
-                  <option value="Canada">Canada</option>
-                  <option value="United States">United States</option>
-                  <option value="United Kingdom">United Kingdom</option>
-                  {/* Add more countries as needed */}
+                  <option value="">Select a country</option>
+                  <option value="US">United States</option>
+                  <option value="CA">Canada</option>
+                  <option value="GB">United Kingdom</option>
+                  <option value="AU">Australia</option>
+                  <option value="NZ">New Zealand</option>
+                  <option value="IN">India</option>
+                  <option value="DE">Germany</option>
+                  <option value="FR">France</option>
+                  <option value="IT">Italy</option>
+                  <option value="ES">Spain</option>
+                  <option value="NL">Netherlands</option>
+                  <option value="BE">Belgium</option>
+                  <option value="SE">Sweden</option>
+                  <option value="NO">Norway</option>
+                  <option value="DK">Denmark</option>
+                  <option value="FI">Finland</option>
+                  <option value="IE">Ireland</option>
+                  <option value="PT">Portugal</option>
+                  <option value="AT">Austria</option>
+                  <option value="CH">Switzerland</option>
+                  <option value="JP">Japan</option>
+                  <option value="KR">South Korea</option>
+                  <option value="SG">Singapore</option>
+                  <option value="AE">United Arab Emirates</option>
                 </select>
               </div>
             </div>
             
             <div className="form-field">
-              <label htmlFor="province">Province <span className="required">*</span></label>
+              <label htmlFor="province">State/Province <span className="required">*</span></label>
               <div className="select-wrapper">
-                <select
-                  id="province"
-                  value={province}
-                  onChange={(e) => setProvince(e.target.value)}
-                  required
-                >
-                  <option value="British Columbia">British Columbia</option>
-                  <option value="Ontario">Ontario</option>
-                  <option value="Quebec">Quebec</option>
-                  <option value="Alberta">Alberta</option>
-                  {/* Add more provinces/states as needed */}
-                </select>
+                {country === "US" ? (
+                  <select id="province" value={province} onChange={(e) => setProvince(e.target.value)} required>
+                    <option value="">Select a state</option>
+                    <option value="AL">Alabama</option>
+                    <option value="AK">Alaska</option>
+                    <option value="AZ">Arizona</option>
+                    <option value="AR">Arkansas</option>
+                    <option value="CA">California</option>
+                    <option value="CO">Colorado</option>
+                    <option value="CT">Connecticut</option>
+                    <option value="DE">Delaware</option>
+                    <option value="FL">Florida</option>
+                    <option value="GA">Georgia</option>
+                    <option value="HI">Hawaii</option>
+                    <option value="ID">Idaho</option>
+                    <option value="IL">Illinois</option>
+                    <option value="IN">Indiana</option>
+                    <option value="IA">Iowa</option>
+                    <option value="KS">Kansas</option>
+                    <option value="KY">Kentucky</option>
+                    <option value="LA">Louisiana</option>
+                    <option value="ME">Maine</option>
+                    <option value="MD">Maryland</option>
+                    <option value="MA">Massachusetts</option>
+                    <option value="MI">Michigan</option>
+                    <option value="MN">Minnesota</option>
+                    <option value="MS">Mississippi</option>
+                    <option value="MO">Missouri</option>
+                    <option value="MT">Montana</option>
+                    <option value="NE">Nebraska</option>
+                    <option value="NV">Nevada</option>
+                    <option value="NH">New Hampshire</option>
+                    <option value="NJ">New Jersey</option>
+                    <option value="NM">New Mexico</option>
+                    <option value="NY">New York</option>
+                    <option value="NC">North Carolina</option>
+                    <option value="ND">North Dakota</option>
+                    <option value="OH">Ohio</option>
+                    <option value="OK">Oklahoma</option>
+                    <option value="OR">Oregon</option>
+                    <option value="PA">Pennsylvania</option>
+                    <option value="RI">Rhode Island</option>
+                    <option value="SC">South Carolina</option>
+                    <option value="SD">South Dakota</option>
+                    <option value="TN">Tennessee</option>
+                    <option value="TX">Texas</option>
+                    <option value="UT">Utah</option>
+                    <option value="VT">Vermont</option>
+                    <option value="VA">Virginia</option>
+                    <option value="WA">Washington</option>
+                    <option value="WV">West Virginia</option>
+                    <option value="WI">Wisconsin</option>
+                    <option value="WY">Wyoming</option>
+                  </select>
+                ) : country === "CA" ? (
+                  <select id="province" value={province} onChange={(e) => setProvince(e.target.value)} required>
+                    <option value="">Select a province</option>
+                    <option value="AB">Alberta</option>
+                    <option value="BC">British Columbia</option>
+                    <option value="MB">Manitoba</option>
+                    <option value="NB">New Brunswick</option>
+                    <option value="NL">Newfoundland and Labrador</option>
+                    <option value="NS">Nova Scotia</option>
+                    <option value="ON">Ontario</option>
+                    <option value="PE">Prince Edward Island</option>
+                    <option value="QC">Quebec</option>
+                    <option value="SK">Saskatchewan</option>
+                    <option value="NT">Northwest Territories</option>
+                    <option value="NU">Nunavut</option>
+                    <option value="YT">Yukon</option>
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    id="province"
+                    placeholder="Enter state/province/region"
+                    value={province}
+                    onChange={(e) => setProvince(e.target.value)}
+                    required
+                  />
+                )}
               </div>
             </div>
             
@@ -411,52 +470,18 @@ const SubscriptionPaymentForm = () => {
         <div className="payment-form-right">
           <div className="order-summary">
             <h3>Premium</h3>
-            <div className="coupon-row">
-              <div className="original-plan">Monthly Premium</div>
-              {showCouponInput ? (
-                <div className="coupon-input-group">
-                  <input
-                    type="text"
-                    placeholder="Enter coupon"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                  />
-                  <button 
-                    onClick={handleApplyCoupon}
-                    type="button"
-                  >
-                    Apply
-                  </button>
-                </div>
-              ) : (
-                <button 
-                  onClick={() => setShowCouponInput(true)}
-                  className="apply-coupon-btn"
-                  type="button"
-                >
-                  Apply Coupon
-                </button>
-              )}
-            </div>
             
             <div className="price-details">
               <div className="price-row">
                 <span>Monthly Price</span>
                 <span>${monthlyPrice.toFixed(2)}</span>
               </div>
-              
-              {appliedDiscount > 0 && (
-                <div className="price-row discount">
-                  <span>Discount</span>
-                  <span>-${appliedDiscount.toFixed(2)}</span>
-                </div>
-              )}
             </div>
             
             <div className="total-price">
               <div className="price-row">
                 <span>You Pay</span>
-                <span>USD ${discountedPrice.toFixed(2)}</span>
+                <span>USD ${monthlyPrice.toFixed(2)}</span>
               </div>
             </div>
             
