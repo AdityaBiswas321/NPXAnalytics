@@ -4,7 +4,7 @@ import { Navigate } from 'react-router-dom';
 import '../CSS/dashboard.css';
 
 const Dashboard = () => {
-  const { user, token, useTokens } = useAppContext();
+  const { user, token, spendTokens } = useAppContext();
   const [tokenCount, setTokenCount] = useState(1);
   const [message, setMessage] = useState(null);
   const [messageType, setMessageType] = useState('');
@@ -71,7 +71,7 @@ const Dashboard = () => {
 
     setLoading(true);
     try {
-      const success = await useTokens(tokenCount);
+      const success = await spendTokens(tokenCount); // Use spendTokens instead
       if (success) {
         setMessage(`Successfully used ${tokenCount} tokens`);
         setMessageType('success');

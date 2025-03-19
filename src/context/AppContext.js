@@ -153,7 +153,7 @@ export const AppProvider = ({ children }) => {
   };
 
   // Use tokens function
-  const useTokens = async (amount) => {
+  const spendTokens = async (amount) => {
     if (!token || !user) return false;
     
     try {
@@ -195,7 +195,7 @@ export const AppProvider = ({ children }) => {
     login,
     signup,
     logout,
-    useTokens,
+    spendTokens,
     refreshIframeToken
   };
 
