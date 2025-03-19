@@ -1,34 +1,23 @@
 import React, { useState } from "react";
+import { useAppContext } from "../context/AppContext";
+import { Navigate } from "react-router-dom";
 import PaymentPage from "../components/Payments";
 import "../CSS/StorePage.css";
 
 const StorePage = () => {
+  const { user, token } = useAppContext();
   const [showFAQ, setShowFAQ] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
 
-  // State for handling API key and fetched data
-  const [apiKey, setApiKey] = useState("");
-  const [materialsData, setMaterialsData] = useState([]);
-  const [error, setError] = useState(null);
-
-  const fetchMaterialsData = async () => {
-    try {
-      const response = await fetch("https://materialsproject.org/rest/v2/materials/Fe2O3/vasp", {
-        headers: {
-          "X-API-KEY": "IpzcdrTMrBAmEIS67VDFbuRraEF7jCwD"
-        }
-      });
-      if (!response.ok) {
-        throw new Error("Error fetching data");
-      }
-      const data = await response.json();
-      setMaterialsData(data);
-      setError(null);
-    } catch (err) {
-      setError(err.message);
-      setMaterialsData([]);
+  const handleSubscribeClick = () => {
+    if (!user || !token) {
+      // Redirect to login if not authenticated
+      window.location.href = "/login";
+      return;
     }
+    
+    setShowPayment(true);
   };
-  
 
   return (
     <div className="store-container">
@@ -38,67 +27,32 @@ const StorePage = () => {
         <p className="store-tagline">
           Unlock powerful insights with our cutting-edge materials analytics API. Make data-driven decisions with ease.
         </p>
-        <button className="cta-button">Explore Features</button>
+        <button className="cta-button" onClick={() => window.location.href = "#product-section"}>Explore Features</button>
       </header>
 
-      <footer className="store-footer">
-        <p>
-          <a href="/terms-of-service">Terms of Service</a> |{" "}
-          <a href="/privacy-policy">Privacy Policy</a> |{" "}
-          <a href="/contact-support">Contact Support</a>
-        </p>
-        <p>&copy; {new Date().getFullYear()} NPXComputer Analytics. All rights reserved.</p>
-      </footer>
-
-            {/* Free Materials Data Fetch Section */}
-            <section className="materials-data-section">
-        <h2>Materials Database</h2>
-        <p>
-          Enter any API Key: 
-        </p>
-        <input
-          type="text"
-          placeholder="Enter API Key..."
-          value={apiKey}
-          onChange={(e) => setApiKey(e.target.value)}
-          style={{ width: "300px", marginRight: "10px" }}
-        />
-        <button onClick={fetchMaterialsData}>Fetch Data</button>
-
-        {error && <p style={{ color: "red" }}>Error: {error}</p>}
-
-        {materialsData.length > 0 && (
-          <div style={{ marginTop: "20px" }}>
-            <h3>Fetched Data:</h3>
-            <ul>
-              {materialsData.map((item) => (
-                <li key={item.id}>
-                  <strong>Title:</strong> {item.title}
-                  <br />
-                  <strong>Body:</strong> {item.body}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </section>
-
       {/* Product Section */}
-      <section className="product-section">
+      <section id="product-section" className="product-section">
         <div className="product-container">
-          <h2 className="product-title">Premium Analytics API Key</h2>
+          <h2 className="product-title">Premium Analytics Subscription</h2>
           <p className="product-description">
             Transform your business with access to real-time analytics, predictive modeling, and stunning visualizations.
           </p>
           <ul className="product-features">
-            <li>🚀 Real-time data updates for actionable insights</li>
-            <li>📊 Predictive models powered by machine learning</li>
+            <li>🚀 1000 tokens per month</li>
+            <li>📊 Real-time data updates for actionable insights</li>
             <li>🔗 Seamless integration with any platform</li>
             <li>📈 Beautiful, shareable visualizations</li>
             <li>🛡️ Top-tier security and scalability</li>
           </ul>
-          <p className="product-price">Price: $0.50 (Valid for 1 hour)</p>
-          <PaymentPage />
+          <p className="product-price">$7.49/month</p>
+          
+          {showPayment ? (
+            <PaymentPage />
+          ) : (
+            <button className="payment-button" onClick={handleSubscribeClick}>
+              {user ? "Subscribe Now" : "Login to Subscribe"}
+            </button>
+          )}
         </div>
       </section>
 
@@ -107,10 +61,9 @@ const StorePage = () => {
         <h2 className="expanded-title">Why Choose NPXComputer Analytics?</h2>
         <div className="feature-grid">
           <div className="feature-item">
-            <h3>Real-Time Insights</h3>
+            <h3>Monthly Token Allocation</h3>
             <p>
-              Get live data updates for tracking key metrics in any free materials database.
-              Stay ahead of trends with instantaneous insights.
+              Get 1000 tokens every month to use across our platform. Perfect for regular analytics needs.
             </p>
           </div>
           <div className="feature-item">
@@ -180,17 +133,17 @@ const StorePage = () => {
         {showFAQ && (
           <ul className="faq-list">
             <li>
-              <strong>What does the API provide?</strong>
+              <strong>What does the subscription include?</strong>
               <p>
-                NPXComputer offers real-time analytics, predictive models, and visualization tools
-                accessible via a powerful API.
+                Your subscription includes 1000 tokens per month, access to all premium features,
+                and regular updates to our analytics platform.
               </p>
             </li>
             <li>
-              <strong>Is there a free trial?</strong>
+              <strong>How do tokens work?</strong>
               <p>
-                Yes! Request a 7-day trial API key by emailing{" "}
-                <a href="mailto:trial@dataflex.com">trial@dataflex.com</a>.
+                Tokens are used for various API calls and data analysis requests. You receive 1000 tokens
+                each month, and they refresh on your billing date.
               </p>
             </li>
             <li>
@@ -202,7 +155,8 @@ const StorePage = () => {
             <li>
               <strong>Can I cancel my subscription?</strong>
               <p>
-                Absolutely. You can cancel anytime without penalties. Contact our support team.
+                Yes, you can cancel your subscription at any time. You'll continue to have access until
+                the end of your current billing period.
               </p>
             </li>
           </ul>
@@ -214,7 +168,7 @@ const StorePage = () => {
         <h2 className="testimonials-title">What Our Customers Say</h2>
         <div className="testimonials">
           <blockquote className="testimonial">
-            "The predictive analytics helped us increase sales by 30%. The best investment
+            "The monthly token allocation is perfect for our needs. The best investment
             we've made in years." – Sarah J.
           </blockquote>
           <blockquote className="testimonial">
@@ -228,7 +182,14 @@ const StorePage = () => {
         </div>
       </section>
 
-
+      <footer className="store-footer">
+        <p>
+          <a href="/terms-of-service">Terms of Service</a> |{" "}
+          <a href="/privacy-policy">Privacy Policy</a> |{" "}
+          <a href="/contact-support">Contact Support</a>
+        </p>
+        <p>&copy; {new Date().getFullYear()} NPXComputer Analytics. All rights reserved.</p>
+      </footer>
     </div>
   );
 };

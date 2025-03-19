@@ -1,50 +1,89 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import SubscriptionPaymentForm from "./components/Payments"; // Updated payment component
-import StorePage from "./pages/StorePage"; // StorePage component
-import ContactSupport from "./pages/ContactSupport"; // ContactSupport component
-import TermsOfService from "./pages/TermsOfService"; // TermsOfService component
-import PrivacyPolicy from "./pages/PrivacyPolicy"; // PrivacyPolicy component
-import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AppProvider, useAppContext } from './context/AppContext';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 
-const stripePromise = loadStripe(
-  "pk_live_51JYnmdLGF4kichPFG0rO3QfGD0ALUGmo8b8yCiWuR5X05O6M1vVYfSsKbL8GxgnVVwANYIoHZowXFRtgI0XvYl9T00sTiYyH8U"
-);
+// Import components
+import Navbar from './components/Navigation/Navbar';
+import Dashboard from './pages/Dashboard';
+import HomePage from './pages/HomePage';
+import StorePage from './pages/StorePage';
+import Login from './components/Auth/Login';
+import Signup from './components/Auth/Signup';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import ContactSupport from './pages/ContactSupport';
+import TermsOfService from './pages/TermsOfService';
 
-function App() {
+// Initialize Stripe
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
+
+// Protected Route wrapper
+const ProtectedRoute = ({ children }) => {
+  const { user, token } = useAppContext();
+  
+  if (!user || !token) {
+    return <Navigate to="/login" />;
+  }
+  
+  return children;
+};
+
+// App Component
+const AppContent = () => {
   return (
-    <Elements stripe={stripePromise}>
-      <Router>
-        <Routes>
-          {/* Home route - Store Page */}
-          <Route path="/" element={<StorePage />} />
-
-          {/* Payment route */}
-          <Route path="/payment-app" element={<SubscriptionPaymentForm />} />
-
-          {/* Contact Support route */}
-          <Route path="/contact-support" element={<ContactSupport />} />
-
-          {/* Terms of Service route */}
-          <Route path="/terms-of-service" element={<TermsOfService />} />
-
-          {/* Privacy Policy route */}
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-
-          {/* Fallback route for invalid paths */}
-          <Route
-            path="*"
-            element={
-              <div style={{ textAlign: "center", marginTop: "50px" }}>
-                <h1>404 - Page Not Found</h1>
-              </div>
-            }
-          />
-        </Routes>
-      </Router>
-    </Elements>
+    <Router>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/store" element={<StorePage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
+        <Route path="/contact-support" element={<ContactSupport />} />
+        {/* Fallback route for 404 pages */}
+        <Route path="*" element={
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: 'calc(100vh - 70px)',
+            textAlign: 'center',
+            padding: '1rem'
+          }}>
+            <h1>404 - Page Not Found</h1>
+            <p>The page you are looking for does not exist or has been moved.</p>
+            <a href="/" style={{
+              marginTop: '1rem',
+              padding: '0.5rem 1rem',
+              backgroundColor: '#4caf50',
+              color: 'white',
+              borderRadius: '4px',
+              textDecoration: 'none'
+            }}>Go Back Home</a>
+          </div>
+        } />
+      </Routes>
+    </Router>
   );
-}
+};
+
+// Main App with Providers
+const App = () => {
+  return (
+    <AppProvider>
+      <Elements stripe={stripePromise}>
+        <AppContent />
+      </Elements>
+    </AppProvider>
+  );
+};
 
 export default App;
