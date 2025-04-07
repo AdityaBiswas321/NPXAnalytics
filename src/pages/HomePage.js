@@ -2,11 +2,15 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import '../CSS/homepage.css';
+import Navbar from '../components/Navigation/Navbar';
 
 const HomePage = () => {
   const { user } = useAppContext();
 
   return (
+    <>
+    <Navbar />
+    
     <div className="homepage-container">
       <div className="hero-section">
         <h1>Welcome to NPXComputer Analytics</h1>
@@ -83,6 +87,7 @@ const HomePage = () => {
         </Link>
       </div>
     </div>
+    </>
   );
 };
 

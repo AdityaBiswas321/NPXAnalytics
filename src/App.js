@@ -34,7 +34,7 @@ const ProtectedRoute = ({ children }) => {
 const AppContent = () => {
   return (
     <Router>
-      <Navbar />
+      {/* <Navbar /> */}
       <Routes>
         <Route path="/" element={<HomePage />} />
         {/* Payment route */}
