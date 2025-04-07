@@ -124,7 +124,7 @@ const SubscriptionPaymentForm = () => {
   const [error, setError] = useState(null);
 
   const backendURL = process.env.REACT_APP_BACKEND_URL || "http://localhost:3000";
-  const monthlyPrice = 7.49;
+  const monthlyPrice = 3.99;
 
   // Add countries data
   const countries = [
