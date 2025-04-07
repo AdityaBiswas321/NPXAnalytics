@@ -755,9 +755,7 @@ const SubscriptionPaymentForm = () => {
             
             <div className="subscription-info">
               <p>
-                This subscription automatically renews monthly, 
-                and you'll be notified in advance of the monthly 
-                charge. You can cancel anytime from your profile.
+                This subscription automatically renews monthly. You can cancel anytime from your profile.
               </p>
             </div>
             
