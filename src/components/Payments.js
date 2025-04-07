@@ -126,6 +126,9 @@ const SubscriptionPaymentForm = () => {
   const backendURL = process.env.REACT_APP_BACKEND_URL || "http://localhost:3000";
   const monthlyPrice = 3.99;
 
+  //Update monthly price
+
+
   // Add countries data
   const countries = [
     { code: "AF", name: "Afghanistan" },
