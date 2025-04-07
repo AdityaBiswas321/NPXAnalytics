@@ -14,6 +14,7 @@ import Signup from './components/Auth/Signup';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import ContactSupport from './pages/ContactSupport';
 import TermsOfService from './pages/TermsOfService';
+import Payment from "./components/Payments"; // Payment component
 
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
@@ -36,6 +37,8 @@ const AppContent = () => {
       <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
+        {/* Payment route */}
+        <Route path="/payment-app" element={<Payment />} />
         <Route path="/store" element={<StorePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
