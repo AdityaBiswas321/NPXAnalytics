@@ -18,6 +18,7 @@ import "../CSS/payment.css";
 const CustomSelect = ({ value, onChange, options, placeholder }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [hasSelected, setHasSelected] = useState(!!value);
   const containerRef = useRef(null);
   const searchInputRef = useRef(null);
 
@@ -44,21 +45,110 @@ const CustomSelect = ({ value, onChange, options, placeholder }) => {
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    setHasSelected(!!value);
+  }, [value]);
+
   const selectedOption = options.find(option => option.code === value);
 
+  // Add inline styles for better UI
+  const styles = {
+    container: {
+      position: 'relative',
+      width: '100%',
+    },
+    selectValue: {
+      padding: '0.8rem 1rem',
+      borderRadius: '8px',
+      backgroundColor: '#1e1e1e',
+      border: '1px solid #444',
+      color: '#fff',
+      fontSize: '1rem',
+      transition: 'all 0.3s ease',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      cursor: 'pointer',
+      boxShadow: isOpen ? '0 0 0 2px rgba(163, 108, 255, 0.2)' : 'none',
+      borderColor: isOpen ? '#a36cff' : '#444',
+    },
+    selectOptions: {
+      position: 'absolute',
+      top: 'calc(100% + 5px)',
+      left: 0,
+      right: 0,
+      backgroundColor: '#1e1e1e',
+      borderRadius: '8px',
+      border: '1px solid #444',
+      maxHeight: '250px',
+      overflowY: 'auto',
+      zIndex: 10,
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+      width: '100%',
+    },
+    searchInput: {
+      padding: '0.8rem 1rem',
+      borderRadius: '8px 8px 0 0',
+      backgroundColor: '#2a2a2a',
+      border: 'none',
+      borderBottom: '1px solid #444',
+      color: '#fff',
+      fontSize: '1rem',
+      width: '100%',
+      boxSizing: 'border-box',
+    },
+    optionItem: (isSelected) => ({
+      padding: '0.8rem 1rem',
+      cursor: 'pointer',
+      backgroundColor: isSelected ? 'rgba(163, 108, 255, 0.2)' : 'transparent',
+      transition: 'background-color 0.2s ease',
+      ':hover': {
+        backgroundColor: 'rgba(163, 108, 255, 0.1)',
+      }
+    }),
+    dropdownIcon: {
+      transform: isOpen ? 'rotate(180deg)' : 'rotate(0)',
+      transition: 'transform 0.3s ease',
+    },
+    placeholder: {
+      color: hasSelected ? '#fff' : '#999',
+    },
+    noResultsMessage: {
+      padding: '0.8rem 1rem',
+      color: '#999',
+      textAlign: 'center',
+    },
+    hoverIndicator: {
+      position: 'absolute',
+      right: '12px',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      color: '#a36cff',
+      fontSize: '12px',
+      fontWeight: 'bold',
+    }
+  };
+
   return (
-    <div className="custom-select-container" ref={containerRef}>
+    <div style={styles.container} ref={containerRef}>
       <div 
-        className={`select-value ${isOpen ? 'open' : ''}`}
+        style={styles.selectValue}
         onClick={() => setIsOpen(!isOpen)}
+        role="button"
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
       >
-        {selectedOption ? selectedOption.name : placeholder}
+        <span style={styles.placeholder}>
+          {selectedOption ? selectedOption.name : placeholder}
+        </span>
+        {!hasSelected && !isOpen && <span style={styles.hoverIndicator}>Required</span>}
         <svg 
           width="12" 
           height="12" 
           viewBox="0 0 12 12" 
           fill="none" 
           xmlns="http://www.w3.org/2000/svg"
+          style={styles.dropdownIcon}
         >
           <path 
             d="M2.5 4L6 7.5L9.5 4" 
@@ -71,29 +161,44 @@ const CustomSelect = ({ value, onChange, options, placeholder }) => {
       </div>
       
       {isOpen && (
-        <div className="select-options">
+        <div style={styles.selectOptions} role="listbox">
           <input
             ref={searchInputRef}
             type="text"
-            className="select-search-input"
-            placeholder="Search countries..."
+            style={styles.searchInput}
+            placeholder="Type to search countries..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onClick={(e) => e.stopPropagation()}
+            aria-label="Search countries"
           />
-          {filteredOptions.map((option) => (
-            <div
-              key={option.code}
-              className={`select-option ${option.code === value ? 'selected' : ''}`}
-              onClick={() => {
-                onChange(option.code);
-                setIsOpen(false);
-                setSearchTerm("");
-              }}
-            >
-              {option.name}
-            </div>
-          ))}
+          {filteredOptions.length > 0 ? (
+            filteredOptions.map((option) => (
+              <div
+                key={option.code}
+                style={styles.optionItem(option.code === value)}
+                className="country-option"
+                onClick={() => {
+                  onChange(option.code);
+                  setIsOpen(false);
+                  setSearchTerm("");
+                  setHasSelected(true);
+                }}
+                role="option"
+                aria-selected={option.code === value}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(163, 108, 255, 0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = option.code === value ? 'rgba(163, 108, 255, 0.2)' : 'transparent';
+                }}
+              >
+                {option.name}
+              </div>
+            ))
+          ) : (
+            <div style={styles.noResultsMessage}>No countries found</div>
+          )}
         </div>
       )}
     </div>

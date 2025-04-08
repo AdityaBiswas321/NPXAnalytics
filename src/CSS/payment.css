@@ -612,3 +612,21 @@ html, body {
     padding: 15px;
   }
 }
+
+/* Country Select Dropdown Styles */
+.country-option {
+  padding: 0.8rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.country-option:hover {
+  background-color: rgba(163, 108, 255, 0.1) !important;
+}
+
+.country-option[aria-selected="true"] {
+  background-color: rgba(163, 108, 255, 0.2);
+  font-weight: 500;
+}
+
+/* When no CSS style is found, the inline styles will still work */
