@@ -212,6 +212,7 @@ const SubscriptionPaymentForm = () => {
   const [clientSecret, setClientSecret] = useState("");
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [serverMessage, setServerMessage] = useState("");
+  const [subscriptionSuccess, setSubscriptionSuccess] = useState(false);
 
   // Form states
   const [firstName, setFirstName] = useState("");
@@ -556,12 +557,14 @@ const SubscriptionPaymentForm = () => {
           body: JSON.stringify({
             paymentIntentId: paymentIntent.id,
             email,
+            subscriptionId: data.subscriptionId,
           }),
         });
         
         if (confirmRes.ok) {
           setServerMessage("Your subscription has been activated successfully!");
           window.parent.postMessage({ type: "PAYMENT_SUCCESS" }, "*");
+          setSubscriptionSuccess(true);
         } else {
           const errorData = await confirmRes.json();
           setServerMessage(errorData.error || "Error activating subscription.");
@@ -589,6 +592,47 @@ const SubscriptionPaymentForm = () => {
     return (
       <div className="payment-form-container">
         <div className="loading-message">{error}</div>
+      </div>
+    );
+  }
+
+  // Display success UI after successful subscription
+  if (subscriptionSuccess) {
+    return (
+      <div className="payment-form-container">
+        <div className="subscription-success">
+          <div className="success-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path 
+                d="M22 11.08V12a10 10 0 1 1-5.93-9.14" 
+                stroke="#4CAF50" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              />
+              <path 
+                d="M22 4L12 14.01l-3-3" 
+                stroke="#4CAF50" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+          <h2>Subscription Activated!</h2>
+          <p>Your premium subscription has been successfully activated. You now have full access to all premium features.</p>
+          <div className="subscription-details">
+            <div className="detail-item">
+              <span className="detail-label">Plan:</span>
+              <span className="detail-value">Premium</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-label">Price:</span>
+              <span className="detail-value">${monthlyPrice.toFixed(2)}/month</span>
+            </div>
+          </div>
+          <p className="return-prompt">You can close this window or return to the application to start enjoying your premium benefits!</p>
+        </div>
       </div>
     );
   }
